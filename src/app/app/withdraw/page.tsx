@@ -10,7 +10,12 @@ import {
 } from "wagmi";
 import { Card, PageHeader, Countdown, Pill } from "@/components/app/ui";
 import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
-import { SHIELDED_POOL_ADDRESS, MOCK_USDG_ADDRESS, NATIVE_ASSET } from "@/lib/contracts";
+import {
+  SHIELDED_POOL_ADDRESS,
+  MOCK_USDG_ADDRESS,
+  MOCK_STOCK_TOKENS,
+  NATIVE_ASSET,
+} from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { IconAlert } from "@/components/app/Icons";
 
@@ -21,16 +26,22 @@ const USDG_ADDRESS = MOCK_USDG_ADDRESS[CHAIN_ID];
 const ASSETS = [
   { symbol: "ETH", address: NATIVE_ASSET },
   { symbol: "USDG", address: USDG_ADDRESS },
+  { symbol: "NVDA", address: MOCK_STOCK_TOKENS.NVDA },
+  { symbol: "TSLA", address: MOCK_STOCK_TOKENS.TSLA },
+  { symbol: "AAPL", address: MOCK_STOCK_TOKENS.AAPL },
 ] as const;
 
-const STANDARD = {
+const STANDARD: Record<string, number[]> = {
   USDG: [250, 500, 1000, 3000],
   ETH: [0.1, 0.5, 1.0],
+  NVDA: [1, 5, 10, 25],
+  TSLA: [1, 5, 10, 25],
+  AAPL: [1, 5, 10, 25],
 };
 
 export default function WithdrawPage() {
   const [mode, setMode] = useState<"custom" | "standard">("standard");
-  const [symbol, setSymbol] = useState<"ETH" | "USDG">("ETH");
+  const [symbol, setSymbol] = useState<(typeof ASSETS)[number]["symbol"]>("ETH");
   const [amount, setAmount] = useState("");
 
   const asset = ASSETS.find((a) => a.symbol === symbol)!;

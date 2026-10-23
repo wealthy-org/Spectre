@@ -15,6 +15,7 @@ import { erc20Abi } from "@/lib/abi/ERC20";
 import {
   SHIELDED_POOL_ADDRESS,
   MOCK_USDG_ADDRESS,
+  MOCK_STOCK_TOKENS,
   NATIVE_ASSET,
 } from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
@@ -24,11 +25,11 @@ const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[CHAIN_ID];
 const USDG_ADDRESS = MOCK_USDG_ADDRESS[CHAIN_ID];
 
 const ASSETS = [
-  { symbol: "ETH", address: NATIVE_ASSET, live: true },
-  { symbol: "USDG", address: USDG_ADDRESS, live: true },
-  { symbol: "NVDA", address: null, live: false },
-  { symbol: "TSLA", address: null, live: false },
-  { symbol: "AAPL", address: null, live: false },
+  { symbol: "ETH", address: NATIVE_ASSET, live: true, faucetAmount: null },
+  { symbol: "USDG", address: USDG_ADDRESS, live: true, faucetAmount: "1000" },
+  { symbol: "NVDA", address: MOCK_STOCK_TOKENS.NVDA, live: true, faucetAmount: "10" },
+  { symbol: "TSLA", address: MOCK_STOCK_TOKENS.TSLA, live: true, faucetAmount: "10" },
+  { symbol: "AAPL", address: MOCK_STOCK_TOKENS.AAPL, live: true, faucetAmount: "10" },
 ] as const;
 
 export default function ShieldPage() {
@@ -50,22 +51,22 @@ export default function ShieldPage() {
     query: { enabled: ready && isNative },
   });
 
-  // USDG wallet balance + allowance
-  const { data: usdgBalance, refetch: refetchUsdgBalance } = useReadContract({
-    address: USDG_ADDRESS,
+  // Token wallet balance + allowance
+  const { data: tokenBalance, refetch: refetchTokenBalance } = useReadContract({
+    address: (asset.address ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: [address ?? "0x0000000000000000000000000000000000000000"],
     chainId: CHAIN_ID,
-    query: { enabled: ready && !isNative && isLive },
+    query: { enabled: ready && !isNative && !!asset.address },
   });
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: USDG_ADDRESS,
+    address: (asset.address ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
     abi: erc20Abi,
     functionName: "allowance",
     args: [address ?? "0x0000000000000000000000000000000000000000", POOL_ADDRESS],
     chainId: CHAIN_ID,
-    query: { enabled: ready && !isNative && isLive },
+    query: { enabled: ready && !isNative && !!asset.address },
   });
 
   const { writeContract, data: hash, isPending, error, reset } = useWriteContract();
@@ -85,30 +86,32 @@ export default function ShieldPage() {
     if (isConfirmed) {
       setAmount("");
       refetchAllowance();
-      refetchUsdgBalance();
+      refetchTokenBalance();
       const t = setTimeout(() => reset(), 6000);
       return () => clearTimeout(t);
     }
-  }, [isConfirmed, reset, refetchAllowance, refetchUsdgBalance]);
+  }, [isConfirmed, reset, refetchAllowance, refetchTokenBalance]);
 
   const canSubmit = isLive && ready && amountWei > 0n;
 
   function handleFaucet() {
+    if (!asset.address || isNative || !asset.faucetAmount) return;
     writeContract({
-      address: USDG_ADDRESS,
+      address: asset.address as `0x${string}`,
       abi: erc20Abi,
       functionName: "faucet",
-      args: [parseUnits("1000", 18)],
+      args: [parseUnits(asset.faucetAmount, 18)],
       chainId: CHAIN_ID,
     });
   }
 
   function handleApprove() {
+    if (!ready || isNative || !asset.address) return;
     writeContract({
-      address: USDG_ADDRESS,
+      address: asset.address as `0x${string}`,
       abi: erc20Abi,
       functionName: "approve",
-      args: [POOL_ADDRESS, amountWei],
+      args: [POOL_ADDRESS, 2n ** 256n - 1n],
       chainId: CHAIN_ID,
     });
   }
@@ -124,12 +127,12 @@ export default function ShieldPage() {
         value: parseEther(amount),
         chainId: CHAIN_ID,
       });
-    } else {
+    } else if (asset.address) {
       writeContract({
         address: POOL_ADDRESS,
         abi: shieldedPoolAbi,
         functionName: "deposit",
-        args: [USDG_ADDRESS, amountWei],
+        args: [asset.address as `0x${string}`, amountWei],
         chainId: CHAIN_ID,
       });
     }
@@ -158,9 +161,9 @@ export default function ShieldPage() {
     ? ready && ethBalance
       ? `${Number(formatUnits(ethBalance.value, ethBalance.decimals)).toFixed(4)} ETH`
       : "0.0000 ETH"
-    : ready && usdgBalance !== undefined
-    ? `${Number(formatUnits(usdgBalance, 18)).toFixed(2)} USDG`
-    : "0.00 USDG";
+    : ready && tokenBalance !== undefined
+    ? `${Number(formatUnits(tokenBalance, 18)).toFixed(2)} ${symbol}`
+    : `0.00 ${symbol}`;
 
   return (
     <div>
@@ -198,13 +201,13 @@ export default function ShieldPage() {
               only ETH and the testnet mock USDG are wired right now.
             </p>
           )}
-          {isLive && !isNative && (
+          {isLive && !isNative && asset.faucetAmount && (
             <button
               onClick={handleFaucet}
               disabled={!ready || isPending || isConfirming}
               className="mt-2 text-xs font-semibold text-[var(--lilac)] hover:text-[var(--glow)] disabled:opacity-40"
             >
-              Need test USDG? Mint 1,000 from the faucet →
+              Need test {asset.symbol}? Mint {asset.faucetAmount} from the faucet →
             </button>
           )}
 

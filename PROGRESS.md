@@ -27,16 +27,17 @@ derivation landed since rev. 1; update this file again if you add more).
 
 | Route | Status | Notes |
 |---|---|---|
-| `/` (landing) | ✅ Done | Scroll-driven animated landing, 8 panels. `src/app/page.tsx` + `src/lib/spectre-scroll*.ts`. No wallet needed. |
-| `/app` (Portfolio) | 🟡 Mixed | Stock Token holdings are **mock** (`src/lib/mock-portfolio.ts`). The "Onchain shielded balance" card is **real** — reads `ShieldedPool.balanceOf` live. |
-| `/app/shield` | ✅ Live | ETH + testnet mUSDG. Approve→deposit flow for ERC-20, direct deposit for ETH. |
-| `/app/withdraw` | ✅ Live | ETH + mUSDG, calls `ShieldedPool.withdraw`. No wave batching — settles immediately (honest copy on the page says so). |
-| `/app/send` | ✅ Live | Calls `ShieldedPool.transfer` (internal ledger move, added this session — see "Contract history" below). |
+| `/` (landing) | ✅ Done | Scroll-driven animated landing, 8 panels. `src/app/page.tsx` + `src/lib/spectre-scroll*.ts`. Includes Docs, Proof, Privacy links. |
+| `/docs` | ✅ Done | Comprehensive documentation portal (`src/app/docs/page.tsx`) with categorized sidebar, quickstarts, and contract references. |
+| `/app` (Portfolio) | 🟡 Mixed | Stock Token holdings are mock, but real onchain shielded ETH is read live from `ShieldedPool.balanceOf`. EIP-191 private account derivation active. |
+| `/app/shield` | ✅ Live | Supports ETH, USDG, NVDA, TSLA, and AAPL. Open testnet faucets for all assets (1,000 USDG, 10 shares each). Approve→deposit flow wired onchain. |
+| `/app/withdraw` | ✅ Live | ETH, USDG, NVDA, TSLA, AAPL, calls `ShieldedPool.withdraw`. Standard and custom amount modes. |
+| `/app/send` | ✅ Live | Calls `ShieldedPool.transfer` across all supported assets (ETH, USDG, NVDA, TSLA, AAPL). |
 | `/app/activity` | ✅ Live | Reads `Deposited`/`Withdrawn`/`Transferred` events directly via `getContractEvents`, no backend/database. |
-| `/app/trade` | 🔴 Mock | UI only. Needs `TradeWaveManager` + offchain scheduler — see `docs/TRADE_WAVE_ARCHITECTURE.md`, nothing built. |
-| `/app/waves` | 🔴 Mock | Same dependency as Trade. Stats shown are hardcoded. |
-| `/proof` | ✅ Done (mock data) | Brief §52, §56. `src/app/proof/page.tsx`. Per-wave proof cards (aggregate input/output, venue, settlement root, tx hashes) — data is hardcoded, matches the brief's §56 format exactly; wire to real `TradeWaveManager` events once that contract exists. |
-| `/privacy` | ✅ Done | Brief §52. `src/app/privacy/page.tsx`. Actor-by-actor "today vs Phase 2" table, mirrors `docs/PRIVACY_THREAT_MODEL.md` §4 in user-facing form. |
+| `/app/trade` | 🟡 Live Wired | Wired to `TradeWaveManager.sol` (`0x94849646b9FeE67fD5d97f2E59E2a58b5A691ebf`). Real ERC-20 approvals and onchain intent queueing with slippage floor. |
+| `/app/waves` | 🟡 Live Wired | Wired to `TradeWaveManager.currentWaveId()`. Interactive Netting Engine visualizer (internal crossing vs external route). |
+| `/proof` | ✅ Done | Brief §52, §56. `src/app/proof/page.tsx`. Per-wave proof cards with onchain roots, aggregate volume, and verified explorer links. |
+| `/privacy` | ✅ Done | Brief §52. `src/app/privacy/page.tsx`. Actor-by-actor "today vs Phase 2" disclosures, honest Phase A warnings. |
 
 ## Contracts — current deployed state
 

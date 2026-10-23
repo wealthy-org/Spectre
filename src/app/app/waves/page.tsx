@@ -2,11 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useReadContract } from "wagmi";
 import { Card, PageHeader, Countdown, Pill } from "@/components/app/ui";
 import { WAVES } from "@/lib/mock-portfolio";
+import { tradeWaveManagerAbi } from "@/lib/abi/TradeWaveManager";
+import { TRADE_WAVE_MANAGER_ADDRESS } from "@/lib/contracts";
+import { robinhoodChainTestnet } from "@/lib/chains";
+
+const CHAIN_ID = robinhoodChainTestnet.id;
+const WAVE_MANAGER_ADDR = TRADE_WAVE_MANAGER_ADDRESS[CHAIN_ID];
 
 export default function WavesPage() {
   const [selectedPair, setSelectedPair] = useState<"USDG_NVDA" | "USDG_ETH" | "USDG_TSLA">("USDG_NVDA");
+
+  const { data: currentWaveIdData } = useReadContract({
+    address: WAVE_MANAGER_ADDR,
+    abi: tradeWaveManagerAbi,
+    functionName: "currentWaveId",
+    chainId: CHAIN_ID,
+    query: { refetchInterval: 12000 },
+  });
+  const activeWaveNum = currentWaveIdData ? Number(currentWaveIdData) : 185;
 
   const NETTING_DATA = {
     USDG_NVDA: {
@@ -52,7 +68,7 @@ export default function WavesPage() {
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <p className="text-xs font-semibold tracking-[0.1em] text-[rgba(235,221,255,.6)] uppercase">
-                Active Trade Wave #185
+                Active Trade Wave #{activeWaveNum}
               </p>
             </div>
             <p className="mt-1 text-3xl font-bold text-[var(--glow)]">

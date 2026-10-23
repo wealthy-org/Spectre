@@ -10,7 +10,12 @@ import {
 } from "wagmi";
 import { Card, PageHeader } from "@/components/app/ui";
 import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
-import { SHIELDED_POOL_ADDRESS, MOCK_USDG_ADDRESS, NATIVE_ASSET } from "@/lib/contracts";
+import {
+  SHIELDED_POOL_ADDRESS,
+  MOCK_USDG_ADDRESS,
+  MOCK_STOCK_TOKENS,
+  NATIVE_ASSET,
+} from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
@@ -20,10 +25,13 @@ const USDG_ADDRESS = MOCK_USDG_ADDRESS[CHAIN_ID];
 const ASSETS = [
   { symbol: "ETH", address: NATIVE_ASSET },
   { symbol: "USDG", address: USDG_ADDRESS },
+  { symbol: "NVDA", address: MOCK_STOCK_TOKENS.NVDA },
+  { symbol: "TSLA", address: MOCK_STOCK_TOKENS.TSLA },
+  { symbol: "AAPL", address: MOCK_STOCK_TOKENS.AAPL },
 ] as const;
 
 export default function SendPage() {
-  const [symbol, setSymbol] = useState<"ETH" | "USDG">("ETH");
+  const [symbol, setSymbol] = useState<(typeof ASSETS)[number]["symbol"]>("ETH");
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
