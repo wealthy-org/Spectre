@@ -19,7 +19,7 @@ export function WithdrawWavePreviewCard({ waveId = 48 }: { waveId?: number }) {
           <span>How withdrawal waves execute</span>
         </div>
         <Link
-          href="/docs"
+          href="/app/withdraw/waves"
           className="text-xs font-medium text-[var(--text-dim)] transition-colors hover:text-[var(--lilac)]"
         >
           Wave exit docs ↗

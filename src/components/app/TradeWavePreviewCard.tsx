@@ -19,7 +19,7 @@ export function TradeWavePreviewCard({ waveId }: { waveId?: number }) {
           <span>How batch waves execute</span>
         </div>
         <Link
-          href="/docs"
+          href="/app/trade/math"
           className="text-xs font-medium text-[var(--text-dim)] transition-colors hover:text-[var(--lilac)]"
         >
           Batch auction math ↗

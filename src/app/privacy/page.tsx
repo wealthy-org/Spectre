@@ -137,7 +137,7 @@ export default function PrivacyPage() {
       {activeTab === "tiers" && (
         <div className="grid gap-6 md:grid-cols-3">
           {/* Card 1: Public Today */}
-          <Card className="flex flex-col justify-between border-amber-500/25 bg-gradient-to-b from-amber-500/[0.04] to-transparent">
+          <Card className="flex flex-col justify-between border-amber-500/25 bg-[#140F24]">
             <div>
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <span className="text-[11px] font-bold tracking-wider text-amber-400 uppercase">
@@ -192,7 +192,7 @@ export default function PrivacyPage() {
           </Card>
 
           {/* Card 2: Target Architecture (Phase 2 ZK) */}
-          <Card className="flex flex-col justify-between border-[var(--ultra)]/40 bg-gradient-to-b from-[var(--ultra)]/[0.08] to-transparent shadow-xl shadow-[var(--ultra)]/5">
+          <Card className="flex flex-col justify-between border-[var(--ultra)]/40 bg-[#18112C] shadow-xl shadow-[var(--ultra)]/5">
             <div>
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <span className="text-[11px] font-bold tracking-wider text-[var(--lilac)] uppercase">
@@ -247,7 +247,7 @@ export default function PrivacyPage() {
           </Card>
 
           {/* Card 3: Protocol Boundary (Permanently Public) */}
-          <Card className="flex flex-col justify-between border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent">
+          <Card className="flex flex-col justify-between border-white/10 bg-[#140F24]">
             <div>
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <span className="text-[11px] font-bold tracking-wider text-[var(--text-dim)] uppercase">

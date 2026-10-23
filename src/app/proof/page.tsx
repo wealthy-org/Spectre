@@ -116,7 +116,7 @@ export default function ProofPage() {
 
       {/* Dual Core Philosophy Card */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-[var(--ultra)]/30 bg-gradient-to-br from-[var(--surface)] to-[var(--surface-2)]">
+        <Card className="border-[var(--ultra)]/30 bg-[#140F24]">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
             <span className="text-xs font-bold tracking-wider text-emerald-400 uppercase">

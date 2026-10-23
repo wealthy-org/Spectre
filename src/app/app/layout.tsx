@@ -5,7 +5,15 @@ import { AppNav } from "@/components/app/AppNav";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isFullscreen = pathname === "/app/rules" || pathname?.startsWith("/app/rules");
+  const isFullscreen =
+    pathname === "/app/rules" ||
+    pathname?.startsWith("/app/rules") ||
+    pathname === "/app/trade/math" ||
+    pathname?.startsWith("/app/trade/math") ||
+    pathname === "/app/send/ledger" ||
+    pathname?.startsWith("/app/send/ledger") ||
+    pathname === "/app/withdraw/waves" ||
+    pathname?.startsWith("/app/withdraw/waves");
 
   if (isFullscreen) {
     return <div className="min-h-screen bg-[#07050e] font-[var(--fb)] text-white">{children}</div>;

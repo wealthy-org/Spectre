@@ -19,7 +19,7 @@ export function SendTransferPreviewCard() {
           <span>How private transfer executes</span>
         </div>
         <Link
-          href="/docs"
+          href="/app/send/ledger"
           className="text-xs font-medium text-[var(--text-dim)] transition-colors hover:text-[var(--lilac)]"
         >
           Internal ledger docs ↗

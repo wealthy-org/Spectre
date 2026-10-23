@@ -186,24 +186,40 @@ export default function WavesPage() {
             </div>
           </div>
 
-          {/* Visual Netting Bar */}
-          <div>
-            <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-emerald-400 font-semibold">
-                Internal Cross: ${NETTING_DATA.matched.toLocaleString()} (Zero External Slippage)
-              </span>
-              <span className="text-amber-400 font-semibold">
-                Imbalance: ${NETTING_DATA.imbalance.toLocaleString()} ({NETTING_DATA.direction})
-              </span>
+          {/* Visual Netting Bar - Clean Solid Segments (No Gradients) */}
+          <div className="space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                <span className="font-semibold text-emerald-300">
+                  Internal Cross: ${NETTING_DATA.matched.toLocaleString()}
+                </span>
+                <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-mono font-bold text-emerald-300">
+                  {NETTING_DATA.crossPct}% · 0 Slippage
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                <span className="font-semibold text-amber-300">
+                  Imbalance: ${NETTING_DATA.imbalance.toLocaleString()}
+                </span>
+                <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-300">
+                  {100 - NETTING_DATA.crossPct}% · {NETTING_DATA.direction}
+                </span>
+              </div>
             </div>
-            <div className="h-3 w-full rounded-full bg-white/10 overflow-hidden flex">
+
+            {/* Solid Segmented Bar with Clean Gap */}
+            <div className="flex h-3.5 w-full gap-1.5 rounded-xl border border-white/10 bg-[#0c0916] p-0.5">
               <div
                 style={{ width: `${NETTING_DATA.crossPct}%` }}
-                className="bg-gradient-to-r from-emerald-500 to-[var(--ultra)]"
+                className="h-full rounded-lg bg-emerald-400 transition-all duration-500"
+                title={`Internal Cross: ${NETTING_DATA.crossPct}%`}
               />
               <div
                 style={{ width: `${100 - NETTING_DATA.crossPct}%` }}
-                className="bg-amber-500"
+                className="h-full rounded-lg bg-amber-400 transition-all duration-500"
+                title={`Imbalance: ${100 - NETTING_DATA.crossPct}%`}
               />
             </div>
           </div>
