@@ -16,3 +16,14 @@ export const MOCK_USDG_ADDRESS = {
 } as const;
 
 export const NATIVE_ASSET = "0x0000000000000000000000000000000000000000" as const;
+
+export const TRADE_WAVE_MANAGER_ADDRESS = {
+  46630: "0x94849646b9FeE67fD5d97f2E59E2a58b5A691ebf",
+} as const;
+
+export const MOCK_STOCK_TOKENS = {
+  NVDA: "0x3AfB237CE8A6310cf6bcf2A5Dcb9B72A4E02347a",
+  TSLA: "0xa8699478f7736413ea0fdb139b4f2c520a06847a",
+  AAPL: "0xd6c6f37ee0c54bb21c4e7fb261fc4b62dbba48e5",
+} as const;
+

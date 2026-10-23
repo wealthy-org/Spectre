@@ -68,9 +68,9 @@
 .flip .copy{order:2}
 .flip .wrap{grid-template-columns:minmax(0,6fr) minmax(0,5fr)}
 .copy{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(12px,2.2svh,22px)}
-h1,h2{font-family:var(--fd);font-weight:700;letter-spacing:-.018em;line-height:1.02;text-wrap:balance}
-h1{font-size:clamp(2.5rem,6.1vw,5.6rem)}
-h2{font-size:clamp(2rem,4.5vw,4.1rem)}
+.copy h1, .copy h2{font-family:var(--fd);font-weight:700;letter-spacing:-.018em;line-height:1.02;text-wrap:balance}
+.copy h1{font-size:clamp(2.5rem,6.1vw,5.6rem)}
+.copy h2{font-size:clamp(2rem,4.5vw,4.1rem)}
 .lead{max-width:34em;font-size:clamp(1rem,1.3vw,1.2rem)}
 .fine{max-width:34em;font-size:.92rem;color:var(--muted);border-left:3px solid var(--ultra);padding-left:12px}
 .cta{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center;margin-top:4px}

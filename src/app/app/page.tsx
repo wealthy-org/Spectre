@@ -9,6 +9,7 @@ import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
 import { SHIELDED_POOL_ADDRESS, NATIVE_ASSET } from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { usePrivateAccount } from "@/lib/private-account";
+import { IconKey } from "@/components/app/Icons";
 
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[robinhoodChainTestnet.id];
 
@@ -38,8 +39,8 @@ export default function PortfolioPage() {
         <div className="mb-6 rounded-2xl border border-[var(--ultra)]/30 bg-[var(--surface-2)] p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--ultra)]/20 text-lg">
-                🗝️
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--ultra)]/20 text-[var(--lilac)]">
+                <IconKey className="h-4 w-4" />
               </span>
               <div>
                 <div className="flex items-center gap-2">

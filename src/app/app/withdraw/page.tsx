@@ -12,6 +12,7 @@ import { Card, PageHeader, Countdown, Pill } from "@/components/app/ui";
 import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
 import { SHIELDED_POOL_ADDRESS, MOCK_USDG_ADDRESS, NATIVE_ASSET } from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
+import { IconAlert } from "@/components/app/Icons";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[CHAIN_ID];
@@ -178,7 +179,7 @@ export default function WithdrawPage() {
                 <span className="text-sm font-semibold text-[var(--text-dim)]">{symbol}</span>
               </div>
               <p className="mt-3 flex items-start gap-2 text-xs text-[var(--text-dimmer)]">
-                <span>⚠</span>
+                <IconAlert className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
                 <span>A unique amount is easier to correlate with a specific deposit.</span>
               </p>
             </>
