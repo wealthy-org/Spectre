@@ -500,85 +500,147 @@ export default function PrivacyRulesPage() {
         />
       </main>
 
-      {/* DOCKED BOTTOM CONTROL DECK */}
-      <footer className="shrink-0 w-full border-t border-white/5 bg-[#0a0714]/95 px-6 pb-4 pt-3 backdrop-blur-md z-10 space-y-3">
-        {/* Upper Explainer Card */}
-        <div className="rounded-2xl border border-white/10 bg-[#0e0a1c]/90 p-4 shadow-xl">
-          <div className="grid gap-5 md:grid-cols-[220px_1fr_auto] md:items-center">
-            {/* Left Diagram: Why it's trackable vs shielded */}
-            <div className="rounded-xl border border-white/10 bg-black/40 p-3">
-              <div className="flex items-center justify-between text-[10px] font-bold tracking-wider text-[var(--text-dimmer)] uppercase">
+      {/* FULL VIEW CANVAS STAGE */}
+      <main className="relative flex-1 w-full min-h-[360px] overflow-hidden bg-[#07050e]">
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 block h-full w-full select-none cursor-crosshair touch-none"
+        />
+
+        {/* FLOATING EXPLAINER CARD OVER CANVAS */}
+        <div className="absolute bottom-4 left-6 z-20 max-w-[560px] w-[calc(100%-3rem)] sm:w-auto rounded-2xl border border-white/10 bg-[#0c0916]/95 p-4.5 shadow-2xl backdrop-blur-xl transition-all">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            {/* Left Diagram: Realistic 3D/Isometric Wallet - Pool - Wallet */}
+            <div className="relative rounded-xl border border-white/10 bg-black/50 p-3 sm:w-[220px] shrink-0 overflow-hidden">
+              <div className="flex items-center justify-between text-[9px] font-bold tracking-wider text-[var(--text-dimmer)] uppercase">
                 <span>{linkChance > 0 ? "WHY IT'S TRACKABLE" : "HOW IT'S SHIELDED"}</span>
               </div>
-              <div className="mt-2.5 flex items-center justify-between gap-1 text-center font-mono text-[10px]">
-                <div className="rounded-lg border border-white/15 bg-white/5 p-1.5 flex-1">
-                  <span className="block text-[8.5px] text-[var(--text-dimmer)]">WALLET</span>
-                  <span className="font-bold text-white text-[10px]">0x3F..9a1c</span>
-                </div>
-                <div className="text-[var(--lilac)] font-bold text-xs">→</div>
-                <div className="rounded-lg border border-[var(--ultra)]/50 bg-[var(--ultra)]/20 p-1.5 flex-1">
-                  <span className="block text-[8.5px] text-[var(--lilac)]">POOL</span>
-                  <span className="font-bold text-[var(--glow)] text-[10px]">VAULT</span>
-                </div>
-                <div className="text-[var(--lilac)] font-bold text-xs">→</div>
-                <div
-                  className={`rounded-lg border p-1.5 flex-1 ${
-                    habits.newAddress
-                      ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-300"
-                      : "border-rose-500/50 bg-rose-500/20 text-rose-300"
-                  }`}
-                >
-                  <span className="block text-[8.5px] opacity-75">
-                    {habits.newAddress ? "CLEAN" : "SAME"}
-                  </span>
-                  <span className="font-bold text-[10px]">
-                    {habits.newAddress ? "0x8D..4e2b" : "0x3F..9a1c"}
-                  </span>
-                </div>
+
+              {/* 3D Isometric SVG Graphic */}
+              <div className="mt-3 flex items-center justify-center">
+                <svg viewBox="0 0 190 70" className="w-full h-auto overflow-visible">
+                  {/* Left Wallet */}
+                  <g transform="translate(10, 16)">
+                    <rect x="0" y="0" width="38" height="26" rx="4" fill="#141124" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+                    <rect x="22" y="8" width="16" height="10" rx="2" fill="#1e1834" stroke="rgba(255,255,255,0.25)" strokeWidth="0.8" />
+                    <circle cx="27" cy="13" r="1.5" fill="#facc15" />
+                    <text x="19" y="32" fill="#888" fontSize="6.5" fontFamily="monospace" textAnchor="middle">0x3F..9a1c</text>
+                  </g>
+
+                  {/* Flow Arrow Left -> Pool */}
+                  <path d="M 52 29 L 66 29" stroke="rgba(201, 162, 255, 0.4)" strokeWidth="1" strokeDasharray="2,2" />
+                  <polygon points="68,29 64,27 64,31" fill="rgba(201, 162, 255, 0.6)" />
+
+                  {/* Center Cylindrical Pool (Glowing 3D Disc) */}
+                  <g transform="translate(95, 29)">
+                    {/* Glowing bottom shadow */}
+                    <ellipse cx="0" cy="8" rx="24" ry="9" fill="rgba(156,72,240,0.18)" />
+                    {/* Cylinder body */}
+                    <path d="M -22 0 C -22 6, 22 6, 22 0 L 22 7 C 22 13, -22 13, -22 7 Z" fill="url(#poolGrad)" />
+                    {/* Top disc */}
+                    <ellipse cx="0" cy="0" rx="22" ry="7" fill="#1c1335" stroke="#9C48F0" strokeWidth="1" />
+                    {/* Particles on surface */}
+                    <circle cx="-10" cy="-1" r="1" fill="#c9a2ff" opacity="0.8" />
+                    <circle cx="6" cy="2" r="1.2" fill="#facc15" opacity="0.8" />
+                    <circle cx="12" cy="-2" r="0.8" fill="#34d399" opacity="0.8" />
+                    <text x="0" y="2.5" fill="#EBDDFF" fontSize="7" fontWeight="bold" textAnchor="middle" letterSpacing="0.5">POOL</text>
+                  </g>
+
+                  {/* Flow Arrow Pool -> Right */}
+                  <path d="M 122 29 L 136 29" stroke={habits.newAddress ? "rgba(52, 211, 153, 0.5)" : "rgba(244, 63, 94, 0.5)"} strokeWidth="1" strokeDasharray="2,2" />
+                  <polygon points="138,29 134,27 134,31" fill={habits.newAddress ? "#34d399" : "#f43f5e"} />
+
+                  {/* Right Wallet (Clean or Same) */}
+                  <g transform="translate(142, 16)">
+                    <rect
+                      x="0"
+                      y="0"
+                      width="38"
+                      height="26"
+                      rx="4"
+                      fill={habits.newAddress ? "#0e1f18" : "#241118"}
+                      stroke={habits.newAddress ? "#10b981" : "#f43f5e"}
+                      strokeWidth="1"
+                    />
+                    <rect
+                      x="22"
+                      y="8"
+                      width="16"
+                      height="10"
+                      rx="2"
+                      fill={habits.newAddress ? "#133126" : "#361622"}
+                      stroke={habits.newAddress ? "rgba(16,185,129,0.5)" : "rgba(244,63,94,0.5)"}
+                      strokeWidth="0.8"
+                    />
+                    <circle cx="27" cy="13" r="1.5" fill={habits.newAddress ? "#34d399" : "#fb7185"} />
+                    <text
+                      x="19"
+                      y="32"
+                      fill={habits.newAddress ? "#6ee7b7" : "#fda4af"}
+                      fontSize="6.5"
+                      fontFamily="monospace"
+                      textAnchor="middle"
+                    >
+                      {habits.newAddress ? "0x8D..4e2b" : "0x3F..9a1c"}
+                    </text>
+                  </g>
+
+                  {/* Gradient definition */}
+                  <defs>
+                    <linearGradient id="poolGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#2a164a" />
+                      <stop offset="100%" stopColor="#140a24" />
+                    </linearGradient>
+                  </defs>
+                </svg>
               </div>
             </div>
 
-            {/* Center Explainer Text */}
-            <div className="space-y-1">
+            {/* Explainer Text Content */}
+            <div className="flex-1 space-y-1.5 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--lilac)]">
                 WHAT ANYONE CAN SEE
               </span>
-              <h2 className="text-lg font-bold tracking-tight text-white">
+              <h2 className="text-base font-bold tracking-tight text-white leading-snug">
                 {linkChance >= 70
                   ? "Your withdrawal is trackable"
                   : linkChance >= 30
-                  ? "Partial heuristics leak your identity"
+                  ? "Partial heuristics leak identity"
                   : linkChance > 0
                   ? "Near-complete anonymity achieved"
-                  : "Zero linkability: 100% private in the pool"}
+                  : "Zero linkability: 100% private in pool"}
               </h2>
-              <p className="text-xs text-[var(--text-dim)] leading-relaxed line-clamp-2">
+              <p className="text-[11px] text-[var(--text-dim)] leading-relaxed">
                 {linkChance >= 70
-                  ? "Anyone can see every deposit (top) and every withdrawal (bottom), forever. You withdrew to the same wallet with exact matching amounts — the link is obvious. Turn on the 5 habits below to keep it private."
+                  ? "Anyone can see every deposit (top) and every withdrawal (bottom), forever. You withdrew to the same wallet — the link is obvious. Turn on the 5 habits below to keep it private."
                   : linkChance >= 30
-                  ? "Changing address helped, but the exact odd decimal amount or immediate withdrawal timing creates heuristic correlation on public chain explorers."
+                  ? "Changing address helped, but odd amount or immediate timing creates statistical correlation. Activate wave batching and round amounts."
                   : linkChance > 0
                   ? "By using a clean address, standard round bucket, and batch wave timing, only faint statistical traces remain."
-                  : "All heuristic vectors are severed! Clean destination address, standard bucket denomination, delayed scheduled wave window, and multi-wave splitting."}
+                  : "All heuristic vectors are severed! Clean destination address, standard bucket denomination, and scheduled batch wave timing."}
               </p>
-            </div>
 
-            {/* Right Action Button */}
-            <div className="flex md:flex-col items-center">
-              <button
-                type="button"
-                onClick={handleNextStep}
-                className="w-full whitespace-nowrap rounded-xl bg-[var(--ultra)] px-6 py-3 text-xs font-bold text-white shadow-[0_8px_24px_-6px_rgba(156,72,240,0.5)] hover:bg-[var(--violet)] transition-all cursor-pointer active:scale-95"
-              >
-                {activeStep === 0
-                  ? "START GUIDE"
-                  : activeStep === 5
-                  ? "RESET SIMULATOR"
-                  : "NEXT HABIT →"}
-              </button>
+              {/* Action Button */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={handleNextStep}
+                  className="rounded-xl bg-[#CCFF00] hover:bg-[#b8e600] px-5 py-2 text-xs font-extrabold text-black shadow-[0_4px_16px_rgba(204,255,0,0.35)] transition-all cursor-pointer active:scale-95"
+                >
+                  {activeStep === 0
+                    ? "START"
+                    : activeStep === 5
+                    ? "RESET SIMULATOR"
+                    : "NEXT HABIT →"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
+      </main>
+
+      {/* DOCKED BOTTOM CONTROL DECK */}
+      <footer className="shrink-0 w-full border-t border-white/5 bg-[#0a0714]/95 px-6 pb-4 pt-3 backdrop-blur-md z-10">
 
         {/* Lower Habits Toolbar (5 Habits) */}
         <div className="flex flex-wrap items-center justify-between gap-2.5">
