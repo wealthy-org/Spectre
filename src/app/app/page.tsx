@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { formatUnits } from "viem";
-import { useAccount, useReadContract } from "wagmi";
+import { formatUnits, getAddress } from "viem";
+import { useAccount, usePublicClient, useReadContract } from "wagmi";
+
 import { Card, PageHeader, Countdown, Pill } from "@/components/app/ui";
 import { HOLDINGS, TOTAL, ACTIVITY } from "@/lib/mock-portfolio";
 import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
@@ -59,7 +61,140 @@ export default function PortfolioPage() {
     query: { enabled: isConnected && onCorrectChain, refetchInterval: 8000 },
   });
 
+  const { data: shieldedAapl } = useReadContract({
+    address: POOL_ADDRESS,
+    abi: shieldedPoolAbi,
+    functionName: "balanceOf",
+    args: [MOCK_STOCK_TOKENS.AAPL, address ?? "0x0000000000000000000000000000000000000000"],
+    chainId: robinhoodChainTestnet.id,
+    query: { enabled: isConnected && onCorrectChain, refetchInterval: 8000 },
+  });
+
   const { isUnlocked, keys, unlock, isDeriving } = usePrivateAccount();
+  const publicClient = usePublicClient({ chainId: robinhoodChainTestnet.id });
+
+  // Real recent activity state
+  const [realActivity, setRealActivity] = useState<
+    { id: string; kind: string; detail: string; time: string; status: string }[] | null
+  >(null);
+
+  useEffect(() => {
+    if (!address || !isConnected || !onCorrectChain || !publicClient) {
+      setRealActivity(null);
+      return;
+    }
+
+    let isSubscribed = true;
+    (async () => {
+      try {
+        let checksumAddress: `0x${string}`;
+        try {
+          checksumAddress = getAddress(address);
+        } catch {
+          checksumAddress = address as `0x${string}`;
+        }
+
+        const latestBlock = await publicClient.getBlockNumber();
+        const fromBlock = latestBlock > 40000n ? latestBlock - 40000n : 0n;
+
+        const [depLogs, withLogs] = await Promise.all([
+          publicClient
+            .getContractEvents({
+              address: POOL_ADDRESS,
+              abi: shieldedPoolAbi,
+              eventName: "Deposited",
+              args: { owner: checksumAddress },
+              fromBlock,
+              toBlock: latestBlock,
+            })
+            .catch(() => []),
+          publicClient
+            .getContractEvents({
+              address: POOL_ADDRESS,
+              abi: shieldedPoolAbi,
+              eventName: "Withdrawn",
+              args: { owner: checksumAddress },
+              fromBlock,
+              toBlock: latestBlock,
+            })
+            .catch(() => []),
+        ]);
+
+        if (!isSubscribed) return;
+
+        const events = [
+          ...depLogs.map((l) => ({
+            id: `${l.transactionHash}-${l.logIndex}`,
+            kind: "Shield",
+            detail: `Deposited ${Number(formatUnits((l.args as { amount?: bigint }).amount ?? 0n, 18)).toFixed(2)} tokens`,
+            time: "Recent",
+            status: "Confirmed",
+            blockNumber: l.blockNumber,
+          })),
+          ...withLogs.map((l) => ({
+            id: `${l.transactionHash}-${l.logIndex}`,
+            kind: "Withdraw",
+            detail: `Withdrew ${Number(formatUnits((l.args as { amount?: bigint }).amount ?? 0n, 18)).toFixed(2)} tokens`,
+            time: "Recent",
+            status: "Confirmed",
+            blockNumber: l.blockNumber,
+          })),
+        ];
+
+        events.sort((a, b) => (b.blockNumber > a.blockNumber ? 1 : -1));
+        setRealActivity(events.slice(0, 3));
+      } catch (err) {
+        console.warn("Failed to fetch portfolio recent activity:", err);
+      }
+    })();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [address, isConnected, onCorrectChain, publicClient]);
+
+
+  // Price definitions (USD)
+  const PRICES = {
+    ETH: 3250.0,
+    USDG: 1.0,
+    NVDA: 139.38,
+    TSLA: 243.24,
+    AAPL: 181.5,
+  };
+
+  // Convert raw bigint balances to human floats
+  const numEth = shieldedEth ? Number(formatUnits(shieldedEth, 18)) : 0;
+  const numUsdg = shieldedUsdg ? Number(formatUnits(shieldedUsdg, 18)) : 0;
+  const numNvda = shieldedNvda ? Number(formatUnits(shieldedNvda, 18)) : 0;
+  const numTsla = shieldedTsla ? Number(formatUnits(shieldedTsla, 18)) : 0;
+  const numAapl = shieldedAapl ? Number(formatUnits(shieldedAapl, 18)) : 0;
+
+  // Real value calculations
+  const valEth = numEth * PRICES.ETH;
+  const valUsdg = numUsdg * PRICES.USDG;
+  const valNvda = numNvda * PRICES.NVDA;
+  const valTsla = numTsla * PRICES.TSLA;
+  const valAapl = numAapl * PRICES.AAPL;
+
+  const realTotal = valEth + valUsdg + valNvda + valTsla + valAapl;
+
+  // Display holdings: if connected and has any balance, show real onchain values; otherwise show baseline preview
+  const displayTotal = isConnected && onCorrectChain ? realTotal : TOTAL;
+
+  const realHoldings = [
+    { ticker: "USDG", name: "USD Global", amount: numUsdg, value: valUsdg, color: "#9C48F0" },
+    { ticker: "NVDA", name: "NVIDIA Stock Token", amount: numNvda, value: valNvda, color: "#4FD1C5" },
+    { ticker: "TSLA", name: "Tesla Stock Token", amount: numTsla, value: valTsla, color: "#F0A848" },
+    { ticker: "AAPL", name: "Apple Stock Token", amount: numAapl, value: valAapl, color: "#F0609C" },
+    { ticker: "ETH", name: "Ethereum", amount: numEth, value: valEth, color: "#C9A2FF" },
+  ].map((h) => ({
+    ...h,
+    pct: realTotal > 0 ? (h.value / realTotal) * 100 : 20,
+  }));
+
+  const displayHoldings = isConnected && onCorrectChain ? realHoldings : HOLDINGS.map((h) => ({ ...h, amount: undefined }));
+
 
   return (
     <div>
@@ -110,34 +245,53 @@ export default function PortfolioPage() {
             <span className="text-xs font-semibold tracking-[0.1em] text-[rgba(235,221,255,.6)] uppercase">
               Total balance
             </span>
-            <Pill tone="accent">Shielded</Pill>
+            <Pill tone="accent">
+              {isConnected && onCorrectChain ? "Onchain Shielded" : "Preview"}
+            </Pill>
           </div>
-          <p className="mt-1 text-4xl font-bold tracking-tight text-[var(--glow)] sm:text-5xl">
-            ${TOTAL.toLocaleString("en-US")}
+          <p className="mt-1 text-4xl font-bold tracking-tight text-[var(--glow)] sm:text-5xl font-mono">
+            ${displayTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
 
-          <div className="mt-5 flex h-2.5 w-full overflow-hidden rounded-full bg-white/10">
-            {HOLDINGS.map((h) => (
-              <div key={h.ticker} style={{ width: `${h.pct}%`, background: h.color }} />
+          <div className="mt-5 flex h-2.5 w-full overflow-hidden rounded-full bg-white/10 gap-0.5">
+            {displayHoldings.map((h) => (
+              <div
+                key={h.ticker}
+                style={{
+                  width: `${Math.max(h.pct, realTotal > 0 ? 0 : 20)}%`,
+                  background: h.color,
+                }}
+                className="h-full first:rounded-l-full last:rounded-r-full"
+              />
             ))}
           </div>
 
           <ul className="mt-5 divide-y divide-white/10">
-            {HOLDINGS.map((h) => (
+            {displayHoldings.map((h) => (
               <li key={h.ticker} className="flex items-center justify-between py-3">
                 <div className="flex items-center gap-3">
                   <TokenIcon symbol={h.ticker} size={32} />
                   <div>
                     <p className="text-sm font-semibold text-[var(--glow)]">{h.ticker}</p>
-                    <p className="text-xs text-[rgba(235,221,255,.55)]">{h.name}</p>
+                    <p className="text-xs text-[rgba(235,221,255,.55)]">
+                      {h.amount !== undefined ? `${h.amount.toFixed(h.ticker === "ETH" ? 4 : 2)} ${h.ticker}` : h.name}
+                    </p>
                   </div>
                 </div>
-                <span className="font-mono text-sm font-semibold text-[var(--glow)]">
-                  ${h.value.toLocaleString("en-US")}
-                </span>
+                <div className="text-right">
+                  <span className="font-mono text-sm font-semibold text-[var(--glow)]">
+                    ${h.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  {realTotal > 0 && (
+                    <p className="text-[10px] text-[var(--text-dim)] font-mono">
+                      {h.pct.toFixed(1)}%
+                    </p>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
+
 
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
@@ -249,26 +403,54 @@ export default function PortfolioPage() {
             View all →
           </Link>
         </div>
-        <ul className="mt-3 divide-y divide-[var(--app-border)]">
-          {ACTIVITY.slice(0, 3).map((a) => (
-            <li
-              key={a.id}
-              className="flex items-center justify-between gap-4 px-5 py-3.5 sm:px-6"
-            >
-              <div className="flex items-center gap-3">
-                <Pill tone="muted">{a.kind}</Pill>
-                <span className="text-sm text-[var(--glow)]">{a.detail}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="hidden text-xs text-[var(--text-dimmer)] sm:inline">
-                  {a.time}
-                </span>
-                <Pill tone="default">{a.status}</Pill>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {/* Activity list or empty state */}
+        {realActivity && realActivity.length > 0 ? (
+          <ul className="mt-3 divide-y divide-[var(--app-border)]">
+            {realActivity.map((a) => (
+              <li
+                key={a.id}
+                className="flex items-center justify-between gap-4 px-5 py-3.5 sm:px-6"
+              >
+                <div className="flex items-center gap-3">
+                  <Pill tone="accent">{a.kind}</Pill>
+                  <span className="text-sm font-mono text-[var(--glow)]">{a.detail}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="hidden text-xs text-[var(--text-dimmer)] sm:inline">
+                    {a.time}
+                  </span>
+                  <Pill tone="default">{a.status}</Pill>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : isConnected && onCorrectChain && realActivity !== null ? (
+          <div className="p-8 text-center text-xs text-[var(--text-dim)]">
+            No shielded activity found for this wallet yet. Deposits and wave trades will appear here.
+          </div>
+        ) : (
+          <ul className="mt-3 divide-y divide-[var(--app-border)]">
+            {ACTIVITY.slice(0, 3).map((a) => (
+              <li
+                key={a.id}
+                className="flex items-center justify-between gap-4 px-5 py-3.5 sm:px-6 opacity-60"
+              >
+                <div className="flex items-center gap-3">
+                  <Pill tone="muted">{a.kind}</Pill>
+                  <span className="text-sm text-[var(--glow)]">{a.detail}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="hidden text-xs text-[var(--text-dimmer)] sm:inline">
+                    {a.time}
+                  </span>
+                  <Pill tone="default">{a.status}</Pill>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
+
     </div>
   );
 }
