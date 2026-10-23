@@ -1,0 +1,25 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.26"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+
+remappings = [
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "forge-std/=lib/forge-std/src/",
+]
+
+[rpc_endpoints]
+# The official rpc.testnet.chain.robinhood.com endpoint currently serves an
+# invalid TLS certificate (verified 2026-10) and fails handshake from both
+# cast and curl. Using the publicnode mirror instead until that's fixed.
+robinhood_testnet = "https://robinhood-sepolia-rpc.publicnode.com"
+
+[etherscan]
+# Robinhood Chain testnet explorer verification — fill in if/when an API key is available.
+robinhood_testnet = { key = "${ROBINHOOD_EXPLORER_API_KEY}", url = "https://explorer.testnet.chain.robinhood.com/api" }
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
