@@ -6,7 +6,12 @@ import { useAccount, useReadContract } from "wagmi";
 import { Card, PageHeader, Countdown, Pill } from "@/components/app/ui";
 import { HOLDINGS, TOTAL, ACTIVITY } from "@/lib/mock-portfolio";
 import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
-import { SHIELDED_POOL_ADDRESS, NATIVE_ASSET } from "@/lib/contracts";
+import {
+  SHIELDED_POOL_ADDRESS,
+  MOCK_USDG_ADDRESS,
+  MOCK_STOCK_TOKENS,
+  NATIVE_ASSET,
+} from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { usePrivateAccount } from "@/lib/private-account";
 import { IconKey } from "@/components/app/Icons";
@@ -22,6 +27,33 @@ export default function PortfolioPage() {
     abi: shieldedPoolAbi,
     functionName: "balanceOf",
     args: [NATIVE_ASSET, address ?? "0x0000000000000000000000000000000000000000"],
+    chainId: robinhoodChainTestnet.id,
+    query: { enabled: isConnected && onCorrectChain, refetchInterval: 8000 },
+  });
+
+  const { data: shieldedUsdg } = useReadContract({
+    address: POOL_ADDRESS,
+    abi: shieldedPoolAbi,
+    functionName: "balanceOf",
+    args: [MOCK_USDG_ADDRESS[robinhoodChainTestnet.id], address ?? "0x0000000000000000000000000000000000000000"],
+    chainId: robinhoodChainTestnet.id,
+    query: { enabled: isConnected && onCorrectChain, refetchInterval: 8000 },
+  });
+
+  const { data: shieldedNvda } = useReadContract({
+    address: POOL_ADDRESS,
+    abi: shieldedPoolAbi,
+    functionName: "balanceOf",
+    args: [MOCK_STOCK_TOKENS.NVDA, address ?? "0x0000000000000000000000000000000000000000"],
+    chainId: robinhoodChainTestnet.id,
+    query: { enabled: isConnected && onCorrectChain, refetchInterval: 8000 },
+  });
+
+  const { data: shieldedTsla } = useReadContract({
+    address: POOL_ADDRESS,
+    abi: shieldedPoolAbi,
+    functionName: "balanceOf",
+    args: [MOCK_STOCK_TOKENS.TSLA, address ?? "0x0000000000000000000000000000000000000000"],
     chainId: robinhoodChainTestnet.id,
     query: { enabled: isConnected && onCorrectChain, refetchInterval: 8000 },
   });
@@ -137,11 +169,26 @@ export default function PortfolioPage() {
               </span>
               <Pill tone="muted">Testnet · live</Pill>
             </div>
-            <p className="mt-2 text-3xl font-bold text-[var(--glow)]">
-              {isConnected && onCorrectChain && shieldedEth !== undefined
-                ? `${formatUnits(shieldedEth, 18)} ETH`
-                : "— ETH"}
-            </p>
+            <div className="mt-2 space-y-2">
+              <p className="text-3xl font-bold text-[var(--glow)]">
+                {isConnected && onCorrectChain && shieldedEth !== undefined
+                  ? `${Number(formatUnits(shieldedEth, 18)).toFixed(4)} ETH`
+                  : "— ETH"}
+              </p>
+              {isConnected && onCorrectChain && (
+                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--lilac)] font-mono border-t border-white/5 pt-2">
+                  <span>
+                    USDG: {shieldedUsdg !== undefined ? Number(formatUnits(shieldedUsdg, 18)).toFixed(2) : "0.00"}
+                  </span>
+                  <span>
+                    NVDA: {shieldedNvda !== undefined ? Number(formatUnits(shieldedNvda, 18)).toFixed(2) : "0.00"}
+                  </span>
+                  <span>
+                    TSLA: {shieldedTsla !== undefined ? Number(formatUnits(shieldedTsla, 18)).toFixed(2) : "0.00"}
+                  </span>
+                </div>
+              )}
+            </div>
             <p className="mt-1 text-xs text-[var(--text-dimmer)]">
               {isConnected
                 ? onCorrectChain

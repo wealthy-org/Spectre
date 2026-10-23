@@ -8,9 +8,13 @@ import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
 import {
   SHIELDED_POOL_ADDRESS,
   SHIELDED_POOL_DEPLOY_BLOCK,
+  MOCK_USDG_ADDRESS,
+  MOCK_STOCK_TOKENS,
+  TRADE_WAVE_MANAGER_ADDRESS,
   NATIVE_ASSET,
 } from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
+import { tradeWaveManagerAbi } from "@/lib/abi/TradeWaveManager";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[CHAIN_ID];
@@ -18,7 +22,7 @@ const DEPLOY_BLOCK = SHIELDED_POOL_DEPLOY_BLOCK[CHAIN_ID];
 
 type Item = {
   key: string;
-  kind: "Shield" | "Withdraw" | "Send" | "Received";
+  kind: "Shield" | "Withdraw" | "Send" | "Received" | "Trade";
   detail: string;
   blockNumber: bigint;
   time: string;
@@ -27,7 +31,13 @@ type Item = {
 };
 
 function symbolOf(asset: string) {
-  return asset.toLowerCase() === NATIVE_ASSET ? "ETH" : "USDG";
+  const lower = asset?.toLowerCase() ?? "";
+  if (lower === NATIVE_ASSET.toLowerCase()) return "ETH";
+  if (lower === MOCK_USDG_ADDRESS[CHAIN_ID]?.toLowerCase()) return "USDG";
+  if (lower === MOCK_STOCK_TOKENS.NVDA?.toLowerCase()) return "NVDA";
+  if (lower === MOCK_STOCK_TOKENS.TSLA?.toLowerCase()) return "TSLA";
+  if (lower === MOCK_STOCK_TOKENS.AAPL?.toLowerCase()) return "AAPL";
+  return "TOKEN";
 }
 
 function timeAgo(timestampSec: number) {
@@ -55,7 +65,7 @@ export default function ActivityPage() {
     setLoading(true);
 
     (async () => {
-      const [deposited, withdrawn, transferred] = await Promise.all([
+      const [deposited, withdrawn, transferred, tradeIntents] = await Promise.all([
         publicClient.getContractEvents({
           address: POOL_ADDRESS,
           abi: shieldedPoolAbi,
@@ -79,6 +89,14 @@ export default function ActivityPage() {
           fromBlock: DEPLOY_BLOCK,
           toBlock: "latest",
         }),
+        publicClient.getContractEvents({
+          address: TRADE_WAVE_MANAGER_ADDRESS[CHAIN_ID],
+          abi: tradeWaveManagerAbi,
+          eventName: "IntentSubmitted",
+          args: { owner: address },
+          fromBlock: DEPLOY_BLOCK,
+          toBlock: "latest",
+        }),
       ]);
 
       const sentOrReceived = (transferred as (Log & { args: Record<string, unknown> })[]).filter(
@@ -94,6 +112,10 @@ export default function ActivityPage() {
           l,
           kind: (l.args.from as string).toLowerCase() === address.toLowerCase() ? ("Send" as const) : ("Received" as const),
         })),
+        ...(tradeIntents as (Log & { args: Record<string, unknown> })[]).map((l) => ({
+          l,
+          kind: "Trade" as const,
+        })),
       ];
 
       const blockNumbers = [...new Set(allLogs.map((x) => x.l.blockNumber!))];
@@ -103,16 +125,24 @@ export default function ActivityPage() {
       const tsByBlock = new Map(blocks.map((b) => [b.number, Number(b.timestamp)]));
 
       const built: Item[] = allLogs.map(({ l, kind }) => {
-        const asset = symbolOf(l.args.asset as string);
-        const amount = formatUnits(l.args.amount as bigint, 18);
-        const detail =
-          kind === "Shield"
-            ? `Deposited ${amount} ${asset}`
-            : kind === "Withdraw"
-            ? `Withdrew ${amount} ${asset} to ${(l.args.to as string).slice(0, 6)}…`
-            : kind === "Send"
-            ? `Sent ${amount} ${asset} to ${(l.args.to as string).slice(0, 6)}…`
-            : `Received ${amount} ${asset} from ${(l.args.from as string).slice(0, 6)}…`;
+        let detail = "";
+        if (kind === "Trade") {
+          const assetIn = symbolOf(l.args.assetIn as string);
+          const assetOut = symbolOf(l.args.assetOut as string);
+          const amountIn = formatUnits(l.args.amountIn as bigint, 18);
+          detail = `Trade Intent: ${Number(amountIn).toFixed(2)} ${assetIn} → ${assetOut} (Wave #${l.args.waveId})`;
+        } else {
+          const asset = symbolOf(l.args.asset as string);
+          const amount = formatUnits(l.args.amount as bigint, 18);
+          detail =
+            kind === "Shield"
+              ? `Deposited ${amount} ${asset}`
+              : kind === "Withdraw"
+              ? `Withdrew ${amount} ${asset} to ${(l.args.to as string).slice(0, 6)}…`
+              : kind === "Send"
+              ? `Sent ${amount} ${asset} to ${(l.args.to as string).slice(0, 6)}…`
+              : `Received ${amount} ${asset} from ${(l.args.from as string).slice(0, 6)}…`;
+        }
         const ts = tsByBlock.get(l.blockNumber!) ?? 0;
         return {
           key: `${l.transactionHash}-${l.logIndex}`,
