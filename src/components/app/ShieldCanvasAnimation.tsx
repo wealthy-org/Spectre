@@ -84,7 +84,7 @@ export function ShieldCanvasAnimation() {
           const offsetX = (c - cols / 2) * (hexRadius * 1.5);
           const offsetY = (r - rows / 2) * hexH + ((c % 2) * hexH) / 2;
           const dist = Math.hypot(offsetX, offsetY);
-          // Keep a circular / organically clustered boundary
+          // Keep an organic cluster boundary
           if (dist < hexRadius * 4.2) {
             hexPositions.push({
               x: clusterCenterX + offsetX,
@@ -101,7 +101,7 @@ export function ShieldCanvasAnimation() {
 
     // Flowing particles
     const particles: Particle[] = Array.from({ length: 14 }).map((_, i) => ({
-      progress: (i / 14) + Math.random() * 0.05,
+      progress: i / 14 + Math.random() * 0.05,
       speed: 0.005 + Math.random() * 0.004,
       curveY: (Math.random() - 0.5) * 55,
       targetIndex: Math.floor(Math.random() * Math.max(hexPositions.length, 1)),
@@ -119,58 +119,56 @@ export function ShieldCanvasAnimation() {
       const poolClusterX = Math.max(width * 0.75, width - 120);
       const poolClusterY = height * 0.48;
 
-      // Subtle background ambient gradient
-      const bgGlow = ctx.createRadialGradient(youX, youY, 0, youX, youY, 90);
-      bgGlow.addColorStop(0, "rgba(199, 227, 108, 0.08)");
-      bgGlow.addColorStop(1, "rgba(199, 227, 108, 0)");
+      // Deep purple ambient glow on YOU node
+      const bgGlow = ctx.createRadialGradient(youX, youY, 0, youX, youY, 95);
+      bgGlow.addColorStop(0, "rgba(156, 72, 240, 0.16)");
+      bgGlow.addColorStop(1, "rgba(156, 72, 240, 0)");
       ctx.fillStyle = bgGlow;
       ctx.fillRect(0, 0, width, height);
 
-      // 1. Radar expanding waves from YOU
+      // 1. Radar expanding waves from YOU (Electric Ultra Purple / Lilac)
       const radarPeriod = 2.4;
       for (let w = 0; w < 3; w++) {
         const phase = (elapsed / radarPeriod + w / 3) % 1;
-        const r = 16 + phase * 40;
-        const alpha = Math.max(0, 1 - phase) * 0.35;
+        const r = 16 + phase * 42;
+        const alpha = Math.max(0, 1 - phase) * 0.4;
         ctx.beginPath();
         ctx.arc(youX, youY, r, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(199, 227, 108, ${alpha})`;
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = `rgba(201, 162, 255, ${alpha})`;
+        ctx.lineWidth = 1.3;
         ctx.stroke();
       }
 
-      // 2. YOU Central Node
-      // Outer hex aura
-      drawHex(ctx, youX, youY, 20, "rgba(23, 38, 12, 0.95)", "#C7E36C", 1.8);
-      // Inner hex core
+      // 2. YOU Central Node (Deep Iris & Ultra Purple)
+      drawHex(ctx, youX, youY, 20, "rgba(36, 16, 85, 0.95)", "#9C48F0", 1.8);
       const pulseCore = 0.7 + Math.sin(elapsed * 4) * 0.3;
       drawHex(
         ctx,
         youX,
         youY,
         12,
-        `rgba(199, 227, 108, ${0.35 * pulseCore})`,
-        "#C7E36C",
+        `rgba(201, 162, 255, ${0.4 * pulseCore})`,
+        "#C9A2FF",
         1.2
       );
 
       // YOU Badge Pill
       const badgeY = youY - 32;
-      ctx.fillStyle = "rgba(199, 227, 108, 0.18)";
-      ctx.strokeStyle = "#C7E36C";
+      ctx.fillStyle = "rgba(156, 72, 240, 0.25)";
+      ctx.strokeStyle = "#9C48F0";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.roundRect(youX - 18, badgeY - 8, 36, 16, 8);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = "#C7E36C";
+      ctx.fillStyle = "#EBDDFF";
       ctx.font = "bold 9px ui-sans-serif, system-ui, -apple-system";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText("YOU", youX, badgeY);
 
-      // 3. Render Honeycomb Pool Cells
+      // 3. Render Honeycomb Pool Cells (Spectre Lilac & Purple Theme)
       if (hexPositions.length === 0) generateHoneycomb();
 
       for (let i = 0; i < hexPositions.length; i++) {
@@ -183,28 +181,28 @@ export function ShieldCanvasAnimation() {
         const isPulsing = h.active;
         const pulse = isPulsing ? (Math.sin(elapsed * 3 + i) + 1) * 0.5 : 0;
 
-        let fill = "rgba(199, 227, 108, 0.04)";
-        let stroke = "rgba(199, 227, 108, 0.15)";
+        let fill = "rgba(156, 72, 240, 0.06)";
+        let stroke = "rgba(201, 162, 255, 0.16)";
 
         if (h.flash > 0) {
-          fill = `rgba(199, 227, 108, ${0.15 + h.flash * 0.45})`;
-          stroke = `rgba(199, 227, 108, ${0.4 + h.flash * 0.6})`;
+          fill = `rgba(201, 162, 255, ${0.25 + h.flash * 0.55})`;
+          stroke = `rgba(255, 255, 255, ${0.4 + h.flash * 0.6})`;
         } else if (isPulsing) {
-          fill = `rgba(199, 227, 108, ${0.08 + pulse * 0.14})`;
-          stroke = `rgba(199, 227, 108, ${0.25 + pulse * 0.35})`;
+          fill = `rgba(156, 72, 240, ${0.12 + pulse * 0.18})`;
+          stroke = `rgba(201, 162, 255, ${0.25 + pulse * 0.35})`;
         }
 
         drawHex(ctx, h.x, h.y, hexRadius, fill, stroke, 1);
       }
 
       // POOL Label
-      ctx.fillStyle = "rgba(235, 221, 255, 0.55)";
+      ctx.fillStyle = "rgba(235, 221, 255, 0.65)";
       ctx.font = "bold 9px ui-sans-serif, system-ui, -apple-system";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText("POOL", poolClusterX, poolClusterY + 44);
 
-      // 4. Flowing Particles & Guide Lines
+      // 4. Flowing Particles & Guide Lines (Lilac/Ultra stream)
       ctx.save();
       for (const p of particles) {
         p.progress += p.speed;
@@ -228,20 +226,20 @@ export function ShieldCanvasAnimation() {
         const px = invT * invT * youX + 2 * invT * t * cpX + t * t * target.x;
         const py = invT * invT * youY + 2 * invT * t * cpY + t * t * target.y;
 
-        // Particle head with radial glow
-        const particleAlpha = Math.sin(t * Math.PI); // Fade in & out
-        const pGlow = ctx.createRadialGradient(px, py, 0, px, py, p.size * 2.5);
-        pGlow.addColorStop(0, `rgba(199, 227, 108, ${particleAlpha * 0.95})`);
-        pGlow.addColorStop(1, "rgba(199, 227, 108, 0)");
+        // Particle head with luminous lilac glow
+        const particleAlpha = Math.sin(t * Math.PI);
+        const pGlow = ctx.createRadialGradient(px, py, 0, px, py, p.size * 2.8);
+        pGlow.addColorStop(0, `rgba(201, 162, 255, ${particleAlpha * 0.95})`);
+        pGlow.addColorStop(1, "rgba(156, 72, 240, 0)");
 
         ctx.fillStyle = pGlow;
         ctx.beginPath();
-        ctx.arc(px, py, p.size * 2.5, 0, Math.PI * 2);
+        ctx.arc(px, py, p.size * 2.8, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = `rgba(255, 255, 255, ${particleAlpha * 0.9})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${particleAlpha * 0.95})`;
         ctx.beginPath();
-        ctx.arc(px, py, p.size * 0.7, 0, Math.PI * 2);
+        ctx.arc(px, py, p.size * 0.75, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
@@ -260,7 +258,7 @@ export function ShieldCanvasAnimation() {
   return (
     <div
       aria-hidden="true"
-      className="relative w-full overflow-hidden rounded-xl border border-[var(--app-border-strong)] bg-[#0C1108]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
+      className="relative w-full overflow-hidden rounded-xl border border-[var(--app-border-strong)] bg-[#130E22]/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
       style={{ height: 156 }}
     >
       <canvas

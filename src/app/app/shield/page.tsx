@@ -290,11 +290,11 @@ export default function ShieldPage() {
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         {/* LEFT COLUMN: NULLMASK-STYLE SHIELD CARD */}
         <div className="flex flex-col gap-4">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0C120A]/80 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#130E22]/90 p-5 shadow-[0_20px_50px_-20px_rgba(156,72,240,0.25)] backdrop-blur-xl sm:p-6">
             {/* Top Tag & Header */}
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#C7E36C] shadow-[0_0_8px_#C7E36C]" />
-              <span className="text-[11px] font-bold tracking-[0.16em] text-[#C7E36C] uppercase">
+              <span className="h-2 w-2 rounded-full bg-[var(--ultra)] shadow-[0_0_8px_var(--ultra)]" />
+              <span className="text-[11px] font-bold tracking-[0.16em] text-[var(--lilac)] uppercase">
                 DEPOSIT
               </span>
             </div>
@@ -317,8 +317,8 @@ export default function ShieldPage() {
               </button>
             )}
 
-            {/* MAIN INPUT CONTAINER (Bordered Card matching Nullmask) */}
-            <div className="mt-5 rounded-2xl border border-white/15 bg-white/[0.035] p-4 transition-all focus-within:border-[#C7E36C]/60 focus-within:bg-white/[0.05] focus-within:shadow-[0_0_24px_-6px_rgba(199,227,108,0.25)]">
+            {/* MAIN INPUT CONTAINER */}
+            <div className="mt-5 rounded-2xl border border-white/15 bg-white/[0.035] p-4 transition-all focus-within:border-[var(--ultra)]/70 focus-within:bg-white/[0.05] focus-within:shadow-[0_0_24px_-6px_rgba(156,72,240,0.35)]">
               <div className="flex items-center justify-between text-[11px] font-semibold tracking-wider text-[var(--text-dim)] uppercase">
                 <span>IN THE POOL YOU GET</span>
                 <span
@@ -341,11 +341,11 @@ export default function ShieldPage() {
                   className="w-full bg-transparent font-mono text-3xl font-bold tracking-tight text-white outline-none placeholder:text-white/20 sm:text-4xl"
                 />
 
-                {/* ASSET SELECTOR PILL (Clickable opens popup modal) */}
+                {/* ASSET SELECTOR PILL */}
                 <button
                   type="button"
                   onClick={() => setIsAssetModalOpen(true)}
-                  className="flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-[#172412]/80 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:border-[#C7E36C]/70 hover:bg-[#1E3018] active:scale-95 cursor-pointer"
+                  className="flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-[#1E1730] px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:border-[var(--ultra)] hover:bg-[#281F40] active:scale-95 cursor-pointer"
                 >
                   <TokenIcon symbol={symbol} size={22} />
                   <span className="font-bold">{symbol}</span>
@@ -364,7 +364,7 @@ export default function ShieldPage() {
                 <button
                   type="button"
                   onClick={handleSetMax}
-                  className="font-mono text-[11px] font-bold text-[#C7E36C] transition-colors hover:underline"
+                  className="font-mono text-[11px] font-bold text-[var(--lilac)] transition-colors hover:text-white hover:underline"
                 >
                   MAX
                 </button>
@@ -380,8 +380,8 @@ export default function ShieldPage() {
                   onClick={() => setAmount(p)}
                   className={`rounded-xl border py-2 text-xs font-semibold font-mono transition-all active:scale-95 ${
                     amount === p
-                      ? "border-[#C7E36C] bg-[#C7E36C]/15 text-[#C7E36C]"
-                      : "border-white/10 bg-white/5 text-[var(--text-dim)] hover:border-[#C7E36C]/40 hover:bg-white/10 hover:text-white"
+                      ? "border-[var(--ultra)] bg-[var(--ultra)]/25 text-[var(--glow)] shadow-[0_0_12px_rgba(156,72,240,0.3)]"
+                      : "border-white/10 bg-white/5 text-[var(--text-dim)] hover:border-[var(--ultra)]/50 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   {p}
@@ -391,7 +391,7 @@ export default function ShieldPage() {
 
             {/* Testnet Faucet Quick Action */}
             {isLive && !isNative && asset.faucetAmount && (
-              <div className="mt-3 flex items-center justify-between rounded-xl border border-[#C7E36C]/20 bg-[#C7E36C]/5 px-3.5 py-2 text-xs">
+              <div className="mt-3 flex items-center justify-between rounded-xl border border-[var(--ultra)]/30 bg-[var(--ultra)]/10 px-3.5 py-2 text-xs text-[var(--glow)]">
                 <span className="text-[var(--text-dim)]">
                   Need test {asset.symbol}? Free testnet tokens available.
                 </span>
@@ -399,14 +399,14 @@ export default function ShieldPage() {
                   type="button"
                   onClick={handleFaucet}
                   disabled={!ready || isPending || isConfirming}
-                  className="font-semibold text-[#C7E36C] hover:underline disabled:opacity-40"
+                  className="font-semibold text-[var(--lilac)] hover:text-white hover:underline disabled:opacity-40"
                 >
                   Mint +{asset.faucetAmount} {asset.symbol} →
                 </button>
               </div>
             )}
 
-            {/* PREPAY FEE TOGGLES (Matching Nullmask) */}
+            {/* PREPAY FEE TOGGLES */}
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-xs text-[var(--text-dim)]">
               <span className="text-[10px] font-bold tracking-wider uppercase text-[var(--text-dimmer)]">
                 PREPAY
@@ -417,7 +417,7 @@ export default function ShieldPage() {
                     type="checkbox"
                     checked={prepayWithdrawal}
                     onChange={(e) => setPrepayWithdrawal(e.target.checked)}
-                    className="accent-[#C7E36C] h-3.5 w-3.5 cursor-pointer rounded"
+                    className="accent-[var(--ultra)] h-3.5 w-3.5 cursor-pointer rounded"
                   />
                   <span>Withdrawal fee</span>
                 </label>
@@ -426,7 +426,7 @@ export default function ShieldPage() {
                     type="checkbox"
                     checked={prepayNetwork}
                     onChange={(e) => setPrepayNetwork(e.target.checked)}
-                    className="accent-[#C7E36C] h-3.5 w-3.5 cursor-pointer rounded"
+                    className="accent-[var(--ultra)] h-3.5 w-3.5 cursor-pointer rounded"
                   />
                   <span>Network fee</span>
                 </label>
@@ -452,7 +452,7 @@ export default function ShieldPage() {
                 <div className="space-y-1.5 border-t border-white/5 bg-black/20 px-4 py-3 text-xs text-[var(--text-dim)]">
                   <div className="flex justify-between">
                     <span>Protocol Deposit Fee</span>
-                    <span className="font-mono text-[#C7E36C]">0.0% (Zero Fee)</span>
+                    <span className="font-mono text-emerald-400">0.0% (Zero Fee)</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Pool Contract</span>
@@ -460,7 +460,7 @@ export default function ShieldPage() {
                       href={`https://explorer.testnet.chain.robinhood.com/address/${POOL_ADDRESS}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="font-mono text-[#C7E36C] hover:underline"
+                      className="font-mono text-[var(--lilac)] hover:underline"
                     >
                       {POOL_ADDRESS.slice(0, 6)}…{POOL_ADDRESS.slice(-4)} ↗
                     </a>
@@ -484,7 +484,7 @@ export default function ShieldPage() {
                 isConfirming
               }
               onClick={primaryAction}
-              className="mt-5 w-full rounded-2xl bg-[#C7E36C] py-3.5 text-sm font-bold text-[#141C0E] shadow-[0_12px_28px_-10px_rgba(199,227,108,0.4)] transition-all hover:bg-[#d4f274] hover:shadow-[0_16px_36px_-8px_rgba(199,227,108,0.5)] active:scale-[0.99] disabled:opacity-40 disabled:hover:bg-[#C7E36C] disabled:hover:shadow-none cursor-pointer"
+              className="mt-5 w-full rounded-2xl bg-[var(--ultra)] py-3.5 text-sm font-bold text-white shadow-[0_12px_28px_-10px_rgba(156,72,240,0.5)] transition-all hover:bg-[var(--violet)] hover:shadow-[0_16px_36px_-8px_rgba(156,72,240,0.6)] active:scale-[0.99] disabled:opacity-40 disabled:hover:bg-[var(--ultra)] disabled:hover:shadow-none cursor-pointer"
             >
               {buttonLabel}
             </button>
@@ -505,7 +505,7 @@ export default function ShieldPage() {
                 href={`https://explorer.testnet.chain.robinhood.com/tx/${hash}`}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 flex items-center justify-center gap-1.5 text-xs text-[#C7E36C] hover:underline"
+                className="mt-3 flex items-center justify-center gap-1.5 text-xs text-[var(--lilac)] hover:underline"
               >
                 <span>View transaction on Robinhood Explorer</span>
                 <IconExternal className="h-3 w-3" />
@@ -559,7 +559,7 @@ export default function ShieldPage() {
           onClick={() => setIsAssetModalOpen(false)}
         >
           <div
-            className="w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-[#0E150B] p-5 shadow-2xl transition-all"
+            className="w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-[#140F24] p-5 shadow-2xl transition-all"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -594,7 +594,7 @@ export default function ShieldPage() {
                       setIsAssetModalOpen(false);
                     }}
                     className={`flex w-full items-center justify-between px-3 py-3 rounded-2xl transition-all hover:bg-white/10 active:scale-[0.99] ${
-                      isSelected ? "bg-[#C7E36C]/10 border border-[#C7E36C]/40" : ""
+                      isSelected ? "bg-[var(--ultra)]/15 border border-[var(--ultra)]/60 shadow-[0_0_16px_rgba(156,72,240,0.2)]" : ""
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -619,7 +619,7 @@ export default function ShieldPage() {
                         {bal}
                       </span>
                       {isSelected && (
-                        <div className="flex items-center justify-end gap-1 text-[11px] font-semibold text-[#C7E36C]">
+                        <div className="flex items-center justify-end gap-1 text-[11px] font-semibold text-[var(--lilac)]">
                           <IconCheck className="h-3 w-3" />
                           <span>Selected</span>
                         </div>
