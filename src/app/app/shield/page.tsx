@@ -6,10 +6,12 @@ import {
   useAccount,
   useBalance,
   useReadContract,
+  useReadContracts,
+  useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { Card, PageHeader, Pill } from "@/components/app/ui";
+import { Card, PageHeader } from "@/components/app/ui";
 import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
 import { erc20Abi } from "@/lib/abi/ERC20";
 import {
@@ -21,47 +23,129 @@ import {
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { TokenIcon } from "@/components/app/TokenIcon";
 import { ShieldPreviewCard } from "@/components/app/ShieldPreviewCard";
+import {
+  IconChevronDown,
+  IconClose,
+  IconAlert,
+  IconCheck,
+  IconExternal,
+} from "@/components/app/Icons";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[CHAIN_ID];
 const USDG_ADDRESS = MOCK_USDG_ADDRESS[CHAIN_ID];
 
 const ASSETS = [
-  { symbol: "ETH", address: NATIVE_ASSET, live: true, faucetAmount: null },
-  { symbol: "USDG", address: USDG_ADDRESS, live: true, faucetAmount: "1000" },
-  { symbol: "NVDA", address: MOCK_STOCK_TOKENS.NVDA, live: true, faucetAmount: "10" },
-  { symbol: "TSLA", address: MOCK_STOCK_TOKENS.TSLA, live: true, faucetAmount: "10" },
-  { symbol: "AAPL", address: MOCK_STOCK_TOKENS.AAPL, live: true, faucetAmount: "10" },
+  {
+    symbol: "ETH",
+    name: "Ethereum",
+    subtitle: "Native Robinhood Chain gas asset",
+    address: NATIVE_ASSET,
+    live: true,
+    faucetAmount: null,
+  },
+  {
+    symbol: "USDG",
+    name: "Global Dollar",
+    subtitle: "Paxos Dollar Network stablecoin",
+    address: USDG_ADDRESS,
+    live: true,
+    faucetAmount: "1000",
+  },
+  {
+    symbol: "NVDA",
+    name: "NVIDIA Corp",
+    subtitle: "Synthetic private stock token",
+    address: MOCK_STOCK_TOKENS.NVDA,
+    live: true,
+    faucetAmount: "10",
+  },
+  {
+    symbol: "TSLA",
+    name: "Tesla Inc",
+    subtitle: "Synthetic private stock token",
+    address: MOCK_STOCK_TOKENS.TSLA,
+    live: true,
+    faucetAmount: "10",
+  },
+  {
+    symbol: "AAPL",
+    name: "Apple Inc",
+    subtitle: "Synthetic private stock token",
+    address: MOCK_STOCK_TOKENS.AAPL,
+    live: true,
+    faucetAmount: "10",
+  },
 ] as const;
+
+const PRESETS: Record<string, string[]> = {
+  ETH: ["0.05", "0.1", "0.5", "1.0"],
+  USDG: ["100", "250", "500", "1000"],
+  NVDA: ["1", "5", "10", "25"],
+  TSLA: ["1", "5", "10", "25"],
+  AAPL: ["1", "5", "10", "25"],
+};
 
 export default function ShieldPage() {
   const [symbol, setSymbol] = useState<(typeof ASSETS)[number]["symbol"]>("ETH");
   const [amount, setAmount] = useState("");
+  const [isAssetModalOpen, setIsAssetModalOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [prepayWithdrawal, setPrepayWithdrawal] = useState(true);
+  const [prepayNetwork, setPrepayNetwork] = useState(true);
 
   const asset = ASSETS.find((a) => a.symbol === symbol)!;
   const isNative = asset.address === NATIVE_ASSET;
   const isLive = asset.live;
 
   const { address, isConnected, chainId } = useAccount();
+  const { switchChain } = useSwitchChain();
   const onCorrectChain = chainId === CHAIN_ID;
   const ready = isConnected && onCorrectChain;
 
-  // native ETH wallet balance (for the ETH row)
-  const { data: ethBalance } = useBalance({
+  // 1. Native ETH balance
+  const { data: ethBalance, refetch: refetchEthBalance } = useBalance({
     address,
     chainId: CHAIN_ID,
-    query: { enabled: ready && isNative },
+    query: { enabled: ready },
   });
 
-  // Token wallet balance + allowance
-  const { data: tokenBalance, refetch: refetchTokenBalance } = useReadContract({
-    address: (asset.address ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: [address ?? "0x0000000000000000000000000000000000000000"],
-    chainId: CHAIN_ID,
-    query: { enabled: ready && !isNative && !!asset.address },
+  // 2. Read all token balances for the modal popup list
+  const { data: tokenBalancesData, refetch: refetchTokenBalances } = useReadContracts({
+    contracts: [
+      {
+        address: USDG_ADDRESS as `0x${string}`,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [address ?? "0x0000000000000000000000000000000000000000"],
+        chainId: CHAIN_ID,
+      },
+      {
+        address: MOCK_STOCK_TOKENS.NVDA as `0x${string}`,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [address ?? "0x0000000000000000000000000000000000000000"],
+        chainId: CHAIN_ID,
+      },
+      {
+        address: MOCK_STOCK_TOKENS.TSLA as `0x${string}`,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [address ?? "0x0000000000000000000000000000000000000000"],
+        chainId: CHAIN_ID,
+      },
+      {
+        address: MOCK_STOCK_TOKENS.AAPL as `0x${string}`,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [address ?? "0x0000000000000000000000000000000000000000"],
+        chainId: CHAIN_ID,
+      },
+    ],
+    query: { enabled: ready && !!address },
   });
+
+  // Active token allowance
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
     address: (asset.address ?? "0x0000000000000000000000000000000000000000") as `0x${string}`,
     abi: erc20Abi,
@@ -82,17 +166,47 @@ export default function ShieldPage() {
       return 0n;
     }
   })();
+
   const needsApproval = !isNative && amountWei > 0n && (allowance ?? 0n) < amountWei;
 
   useEffect(() => {
     if (isConfirmed) {
       setAmount("");
       refetchAllowance();
-      refetchTokenBalance();
+      refetchEthBalance();
+      refetchTokenBalances();
       const t = setTimeout(() => reset(), 6000);
       return () => clearTimeout(t);
     }
-  }, [isConfirmed, reset, refetchAllowance, refetchTokenBalance]);
+  }, [isConfirmed, reset, refetchAllowance, refetchEthBalance, refetchTokenBalances]);
+
+  // Helper to format balance for any symbol
+  function getBalanceFor(sym: string): string {
+    if (!ready) return "0.00";
+    if (sym === "ETH") {
+      return ethBalance ? Number(formatUnits(ethBalance.value, ethBalance.decimals)).toFixed(4) : "0.0000";
+    }
+    const idx = ["USDG", "NVDA", "TSLA", "AAPL"].indexOf(sym);
+    if (idx !== -1 && tokenBalancesData && tokenBalancesData[idx]?.result !== undefined) {
+      const raw = tokenBalancesData[idx].result as bigint;
+      return Number(formatUnits(raw, 18)).toFixed(2);
+    }
+    return "0.00";
+  }
+
+  const currentAvailableBalance = getBalanceFor(symbol);
+
+  function handleSetMax() {
+    if (isNative) {
+      if (!ethBalance || ethBalance.value === 0n) return;
+      // Leave 0.002 ETH for gas
+      const gasBuffer = parseEther("0.002");
+      const maxVal = ethBalance.value > gasBuffer ? ethBalance.value - gasBuffer : 0n;
+      setAmount(formatUnits(maxVal, ethBalance.decimals));
+    } else {
+      setAmount(currentAvailableBalance);
+    }
+  }
 
   const canSubmit = isLive && ready && amountWei > 0n;
 
@@ -140,32 +254,31 @@ export default function ShieldPage() {
     }
   }
 
-  const primaryAction = needsApproval ? handleApprove : handleShield;
-  const buttonLabel = !isConnected
-    ? "Connect wallet to shield"
+  const primaryAction = !isConnected
+    ? undefined
     : !onCorrectChain
-    ? "Switch to Robinhood Chain Testnet"
+    ? () => switchChain({ chainId: CHAIN_ID })
+    : needsApproval
+    ? handleApprove
+    : handleShield;
+
+  const buttonLabel = !isConnected
+    ? "Connect Wallet to Shield"
+    : !onCorrectChain
+    ? "Switch to Robinhood Chain"
     : !isLive
-    ? `${symbol} not supported on testnet yet`
+    ? `${symbol} Not Supported Yet`
     : isPending
-    ? "Confirm in wallet…"
+    ? "Confirming in Wallet…"
     : isConfirming
     ? needsApproval
-      ? "Approving…"
-      : "Shielding…"
+      ? "Approving Token…"
+      : "Shielding into Pool…"
     : isConfirmed
-    ? "Done ✓"
+    ? "Deposited Successfully ✓"
     : needsApproval
-    ? `Approve ${symbol}`
-    : "Shield";
-
-  const available = isNative
-    ? ready && ethBalance
-      ? `${Number(formatUnits(ethBalance.value, ethBalance.decimals)).toFixed(4)} ETH`
-      : "0.0000 ETH"
-    : ready && tokenBalance !== undefined
-    ? `${Number(formatUnits(tokenBalance, 18)).toFixed(2)} ${symbol}`
-    : `0.00 ${symbol}`;
+    ? `Approve ${symbol} for Pool`
+    : "Shield Tokens";
 
   return (
     <div>
@@ -174,130 +287,260 @@ export default function ShieldPage() {
         lead="Deposit into the shared shielded pool. The deposit itself is a public onchain action — privacy comes from what happens after."
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
-        <Card>
-          <label className="text-xs font-semibold tracking-[0.1em] text-[var(--text-dim)] uppercase">
-            Asset
-          </label>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {ASSETS.map((a) => (
-              <button
-                key={a.symbol}
-                onClick={() => {
-                  setSymbol(a.symbol);
-                  setAmount("");
-                }}
-                className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
-                  symbol === a.symbol
-                    ? "bg-[var(--ultra)] text-white"
-                    : "border border-[var(--app-border-strong)] text-[var(--text-dim)] hover:border-[var(--ultra)]"
-                }`}
-              >
-                <TokenIcon symbol={a.symbol} size={20} />
-                <span>{a.symbol}</span>
-              </button>
-            ))}
-          </div>
-          {!isLive && (
-            <p className="mt-2 text-xs text-amber-400/90">
-              {symbol} needs a real asset deployed on Robinhood Chain first —
-              only ETH and the testnet mock USDG are wired right now.
-            </p>
-          )}
-          {isLive && !isNative && asset.faucetAmount && (
-            <button
-              onClick={handleFaucet}
-              disabled={!ready || isPending || isConfirming}
-              className="mt-2 text-xs font-semibold text-[var(--lilac)] hover:text-[var(--glow)] disabled:opacity-40"
-            >
-              Need test {asset.symbol}? Mint {asset.faucetAmount} from the faucet →
-            </button>
-          )}
-
-          <label className="mt-6 block text-xs font-semibold tracking-[0.1em] text-[var(--text-dim)] uppercase">
-            Amount
-          </label>
-          <div className="mt-2 flex items-center gap-3 rounded-xl border border-[var(--app-border-strong)] px-4 py-3">
-            <input
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.0"
-              inputMode="decimal"
-              disabled={!isLive}
-              className="w-full bg-transparent text-2xl font-semibold text-[var(--glow)] outline-none placeholder:text-[var(--text-dimmer)] disabled:opacity-40"
-            />
-            <span className="text-sm font-semibold text-[var(--text-dim)]">{symbol}</span>
-          </div>
-          <p className="mt-2 text-xs text-[var(--text-dimmer)]">Available: {available}</p>
-
-          <div className="mt-6 space-y-2 rounded-xl bg-white/5 p-4 text-sm">
-            <div className="flex justify-between text-[var(--text-dim)]">
-              <span>Contract</span>
-              <a
-                href={`https://explorer.testnet.chain.robinhood.com/address/${POOL_ADDRESS}`}
-                target="_blank"
-                rel="noreferrer"
-                className="font-mono text-[var(--lilac)] hover:text-[var(--glow)]"
-              >
-                {POOL_ADDRESS.slice(0, 6)}…{POOL_ADDRESS.slice(-4)}
-              </a>
-            </div>
-            <div className="flex justify-between text-[var(--text-dim)]">
-              <span>You will hold privately</span>
-              <span className="font-mono text-[var(--glow)]">
-                {amount || "0.0"} {symbol}
+      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        {/* LEFT COLUMN: NULLMASK-STYLE SHIELD CARD */}
+        <div className="flex flex-col gap-4">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0C120A]/80 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
+            {/* Top Tag & Header */}
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#C7E36C] shadow-[0_0_8px_#C7E36C]" />
+              <span className="text-[11px] font-bold tracking-[0.16em] text-[#C7E36C] uppercase">
+                DEPOSIT
               </span>
             </div>
-          </div>
-
-          <button
-            disabled={!canSubmit || isPending || isConfirming}
-            onClick={primaryAction}
-            className="mt-6 w-full rounded-xl bg-[var(--ultra)] py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--violet)] disabled:opacity-40"
-          >
-            {buttonLabel}
-          </button>
-          {needsApproval && (
-            <p className="mt-2 text-center text-[11px] text-[var(--text-dimmer)]">
-              ERC-20s need one-time approval before the pool can pull funds.
+            <h2 className="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Shield tokens
+            </h2>
+            <p className="mt-0.5 text-xs text-[var(--text-dim)]">
+              Move tokens into Spectre for private onchain execution
             </p>
-          )}
 
-          {error && (
-            <p className="mt-3 text-xs text-rose-400">
-              {error.message.split("\n")[0]}
-            </p>
-          )}
-          {hash && (
-            <a
-              href={`https://explorer.testnet.chain.robinhood.com/tx/${hash}`}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 block text-xs text-[var(--lilac)] hover:text-[var(--glow)]"
+            {/* Wrong Network Banner */}
+            {isConnected && !onCorrectChain && (
+              <button
+                type="button"
+                onClick={() => switchChain({ chainId: CHAIN_ID })}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs font-semibold text-amber-300 transition-colors hover:bg-amber-500/20"
+              >
+                <IconAlert className="h-4 w-4 shrink-0" />
+                <span>Switch to Robinhood Chain to shield</span>
+              </button>
+            )}
+
+            {/* MAIN INPUT CONTAINER (Bordered Card matching Nullmask) */}
+            <div className="mt-5 rounded-2xl border border-white/15 bg-white/[0.035] p-4 transition-all focus-within:border-[#C7E36C]/60 focus-within:bg-white/[0.05] focus-within:shadow-[0_0_24px_-6px_rgba(199,227,108,0.25)]">
+              <div className="flex items-center justify-between text-[11px] font-semibold tracking-wider text-[var(--text-dim)] uppercase">
+                <span>IN THE POOL YOU GET</span>
+                <span
+                  className="cursor-help text-xs text-[var(--text-dimmer)] hover:text-white"
+                  title="Your deposit mints a private shielded balance 1:1 inside the pool"
+                >
+                  ⓘ
+                </span>
+              </div>
+
+              {/* Amount Input + Asset Selector Pill */}
+              <div className="mt-2.5 flex items-center justify-between gap-3">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.0"
+                  disabled={!isLive}
+                  className="w-full bg-transparent font-mono text-3xl font-bold tracking-tight text-white outline-none placeholder:text-white/20 sm:text-4xl"
+                />
+
+                {/* ASSET SELECTOR PILL (Clickable opens popup modal) */}
+                <button
+                  type="button"
+                  onClick={() => setIsAssetModalOpen(true)}
+                  className="flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-[#172412]/80 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:border-[#C7E36C]/70 hover:bg-[#1E3018] active:scale-95 cursor-pointer"
+                >
+                  <TokenIcon symbol={symbol} size={22} />
+                  <span className="font-bold">{symbol}</span>
+                  <IconChevronDown className="h-3.5 w-3.5 text-[var(--text-dim)]" />
+                </button>
+              </div>
+
+              {/* Balance & Max Button */}
+              <div className="mt-3 flex items-center justify-between border-t border-white/5 pt-2.5 text-xs text-[var(--text-dim)]">
+                <span>
+                  In your wallet:{" "}
+                  <strong className="font-mono text-white">
+                    {currentAvailableBalance} {symbol}
+                  </strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSetMax}
+                  className="font-mono text-[11px] font-bold text-[#C7E36C] transition-colors hover:underline"
+                >
+                  MAX
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Amount Presets */}
+            <div className="mt-3 grid grid-cols-4 gap-2">
+              {PRESETS[symbol]?.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setAmount(p)}
+                  className={`rounded-xl border py-2 text-xs font-semibold font-mono transition-all active:scale-95 ${
+                    amount === p
+                      ? "border-[#C7E36C] bg-[#C7E36C]/15 text-[#C7E36C]"
+                      : "border-white/10 bg-white/5 text-[var(--text-dim)] hover:border-[#C7E36C]/40 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+
+            {/* Testnet Faucet Quick Action */}
+            {isLive && !isNative && asset.faucetAmount && (
+              <div className="mt-3 flex items-center justify-between rounded-xl border border-[#C7E36C]/20 bg-[#C7E36C]/5 px-3.5 py-2 text-xs">
+                <span className="text-[var(--text-dim)]">
+                  Need test {asset.symbol}? Free testnet tokens available.
+                </span>
+                <button
+                  type="button"
+                  onClick={handleFaucet}
+                  disabled={!ready || isPending || isConfirming}
+                  className="font-semibold text-[#C7E36C] hover:underline disabled:opacity-40"
+                >
+                  Mint +{asset.faucetAmount} {asset.symbol} →
+                </button>
+              </div>
+            )}
+
+            {/* PREPAY FEE TOGGLES (Matching Nullmask) */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-xs text-[var(--text-dim)]">
+              <span className="text-[10px] font-bold tracking-wider uppercase text-[var(--text-dimmer)]">
+                PREPAY
+              </span>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={prepayWithdrawal}
+                    onChange={(e) => setPrepayWithdrawal(e.target.checked)}
+                    className="accent-[#C7E36C] h-3.5 w-3.5 cursor-pointer rounded"
+                  />
+                  <span>Withdrawal fee</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={prepayNetwork}
+                    onChange={(e) => setPrepayNetwork(e.target.checked)}
+                    className="accent-[#C7E36C] h-3.5 w-3.5 cursor-pointer rounded"
+                  />
+                  <span>Network fee</span>
+                </label>
+                <span className="text-xs text-[var(--text-dimmer)]" title="Fees are subsidized on Robinhood Chain testnet">ⓘ</span>
+              </div>
+            </div>
+
+            {/* Total from your wallet dropdown accordion */}
+            <div className="mt-3 overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+              <button
+                type="button"
+                onClick={() => setIsDetailsOpen(!isDetailsOpen)}
+                className="flex w-full items-center justify-between px-4 py-2.5 text-xs text-[var(--text-dim)] transition-colors hover:text-white"
+              >
+                <span>Total from your wallet: <strong className="text-white font-mono">{amount || "0.0"} {symbol}</strong></span>
+                <IconChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    isDetailsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isDetailsOpen && (
+                <div className="space-y-1.5 border-t border-white/5 bg-black/20 px-4 py-3 text-xs text-[var(--text-dim)]">
+                  <div className="flex justify-between">
+                    <span>Protocol Deposit Fee</span>
+                    <span className="font-mono text-[#C7E36C]">0.0% (Zero Fee)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Pool Contract</span>
+                    <a
+                      href={`https://explorer.testnet.chain.robinhood.com/address/${POOL_ADDRESS}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-mono text-[#C7E36C] hover:underline"
+                    >
+                      {POOL_ADDRESS.slice(0, 6)}…{POOL_ADDRESS.slice(-4)} ↗
+                    </a>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Private Output</span>
+                    <span className="font-mono text-white">
+                      {amount || "0.0"} {symbol} in Shielded Pool
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* MAIN ACTION BUTTON */}
+            <button
+              disabled={
+                (!ready && isConnected && onCorrectChain) ||
+                (ready && !canSubmit) ||
+                isPending ||
+                isConfirming
+              }
+              onClick={primaryAction}
+              className="mt-5 w-full rounded-2xl bg-[#C7E36C] py-3.5 text-sm font-bold text-[#141C0E] shadow-[0_12px_28px_-10px_rgba(199,227,108,0.4)] transition-all hover:bg-[#d4f274] hover:shadow-[0_16px_36px_-8px_rgba(199,227,108,0.5)] active:scale-[0.99] disabled:opacity-40 disabled:hover:bg-[#C7E36C] disabled:hover:shadow-none cursor-pointer"
             >
-              View transaction →
-            </a>
-          )}
-        </Card>
+              {buttonLabel}
+            </button>
 
+            {/* Notifications */}
+            {needsApproval && (
+              <p className="mt-2 text-center text-[11px] text-[var(--text-dimmer)]">
+                ERC-20s require a one-time token approval before depositing into the pool.
+              </p>
+            )}
+            {error && (
+              <p className="mt-3 text-xs text-rose-400">
+                {error.message.split("\n")[0]}
+              </p>
+            )}
+            {hash && (
+              <a
+                href={`https://explorer.testnet.chain.robinhood.com/tx/${hash}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 flex items-center justify-center gap-1.5 text-xs text-[#C7E36C] hover:underline"
+              >
+                <span>View transaction on Robinhood Explorer</span>
+                <IconExternal className="h-3 w-3" />
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: ANIMATED HOW IT ENTERS PREVIEW CARD */}
         <div className="flex flex-col gap-6">
           <ShieldPreviewCard />
 
           <Card>
-            <p className="text-sm font-semibold text-[var(--glow)]">How shielding works</p>
+            <p className="text-sm font-semibold text-[var(--glow)]">
+              How shielding works
+            </p>
             <ol className="mt-3 space-y-3 text-sm text-[var(--text-dim)]">
               <li className="flex gap-3">
-                <Pill tone="muted">1</Pill>
-                <span>Connect the wallet you already use on Robinhood Chain.</span>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-white">
+                  1
+                </span>
+                <span>Connect your wallet on Robinhood Chain Testnet.</span>
               </li>
               <li className="flex gap-3">
-                <Pill tone="muted">2</Pill>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-white">
+                  2
+                </span>
                 <span>
-                  ERC-20s (NVDA, TSLA, AAPL, USDG) need a quick 1-click approval first; ETH deposits directly.
+                  Approve ERC-20s (NVDA, TSLA, AAPL, USDG) or deposit ETH directly.
                 </span>
               </li>
               <li className="flex gap-3">
-                <Pill tone="muted">3</Pill>
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-white">
+                  3
+                </span>
                 <span>
                   Your assets enter the pool and can be traded privately across periodic Trade Waves.
                 </span>
@@ -306,6 +549,89 @@ export default function ShieldPage() {
           </Card>
         </div>
       </div>
+
+      {/* ASSET SELECTOR POPUP MODAL */}
+      {isAssetModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setIsAssetModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-3xl border border-white/15 bg-[#0E150B] p-5 shadow-2xl transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-white">Select an Asset</h3>
+                <p className="text-xs text-[var(--text-dim)]">
+                  Available tokens on Robinhood Chain Testnet
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAssetModalOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--text-dim)] hover:bg-white/10 hover:text-white"
+              >
+                <IconClose className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Asset List */}
+            <div className="mt-3 divide-y divide-white/5">
+              {ASSETS.map((a) => {
+                const bal = getBalanceFor(a.symbol);
+                const isSelected = a.symbol === symbol;
+                return (
+                  <button
+                    key={a.symbol}
+                    type="button"
+                    onClick={() => {
+                      setSymbol(a.symbol);
+                      setAmount("");
+                      setIsAssetModalOpen(false);
+                    }}
+                    className={`flex w-full items-center justify-between px-3 py-3 rounded-2xl transition-all hover:bg-white/10 active:scale-[0.99] ${
+                      isSelected ? "bg-[#C7E36C]/10 border border-[#C7E36C]/40" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <TokenIcon symbol={a.symbol} size={36} />
+                      <div className="text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white text-sm">
+                            {a.symbol}
+                          </span>
+                          <span className="text-xs text-[var(--text-dimmer)]">
+                            {a.name}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[var(--text-dim)]">
+                          {a.subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="font-mono text-sm font-semibold text-white">
+                        {bal}
+                      </span>
+                      {isSelected && (
+                        <div className="flex items-center justify-end gap-1 text-[11px] font-semibold text-[#C7E36C]">
+                          <IconCheck className="h-3 w-3" />
+                          <span>Selected</span>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
