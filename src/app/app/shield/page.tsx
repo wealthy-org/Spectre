@@ -19,6 +19,7 @@ import {
   NATIVE_ASSET,
 } from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
+import { TokenIcon } from "@/components/app/TokenIcon";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[CHAIN_ID];
@@ -185,13 +186,14 @@ export default function ShieldPage() {
                   setSymbol(a.symbol);
                   setAmount("");
                 }}
-                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
                   symbol === a.symbol
                     ? "bg-[var(--ultra)] text-white"
                     : "border border-[var(--app-border-strong)] text-[var(--text-dim)] hover:border-[var(--ultra)]"
                 }`}
               >
-                {a.symbol}
+                <TokenIcon symbol={a.symbol} size={20} />
+                <span>{a.symbol}</span>
               </button>
             ))}
           </div>

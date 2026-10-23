@@ -15,6 +15,7 @@ import {
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { usePrivateAccount } from "@/lib/private-account";
 import { IconKey } from "@/components/app/Icons";
+import { TokenIcon } from "@/components/app/TokenIcon";
 
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[robinhoodChainTestnet.id];
 
@@ -125,12 +126,7 @@ export default function PortfolioPage() {
             {HOLDINGS.map((h) => (
               <li key={h.ticker} className="flex items-center justify-between py-3">
                 <div className="flex items-center gap-3">
-                  <span
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-                    style={{ background: h.color }}
-                  >
-                    {h.ticker[0]}
-                  </span>
+                  <TokenIcon symbol={h.ticker} size={32} />
                   <div>
                     <p className="text-sm font-semibold text-[var(--glow)]">{h.ticker}</p>
                     <p className="text-xs text-[rgba(235,221,255,.55)]">{h.name}</p>

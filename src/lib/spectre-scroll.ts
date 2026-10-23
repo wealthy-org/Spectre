@@ -61,6 +61,14 @@ export function runSpectreScroll() {
   });
   void NAME;
 
+  const TOKEN_ICONS: Record<string, string> = {
+    USDG: "/tokens/usdg.svg",
+    NVDA: "/tokens/nvda.svg",
+    TSLA: "/tokens/tsla.svg",
+    AAPL: "/tokens/aapl.svg",
+    ETH: "/tokens/eth.svg",
+  };
+
   const HOLD: [string, string, number, string, string][] = [
     ["USDG", "$", 8000, "#6024A8", "#fff"],
     ["NVDA", "N", 5143, "#1A0D3D", "#fff"],
@@ -118,8 +126,7 @@ export function runSpectreScroll() {
     const shards: SVGElement[] = [];
     HOLD.forEach((h, i) => {
       const y0 = 162 + i * 62;
-      el("circle", { cx: 114, cy: y0 + 26, r: 18, fill: h[3] }, content);
-      txt(content, h[1], 114, y0 + 33, { "font-size": 19, "font-weight": 800, "text-anchor": "middle", fill: h[4] });
+      el("image", { x: 96, y: y0 + 8, width: 36, height: 36, href: TOKEN_ICONS[h[0]] || "" }, content);
       txt(content, h[0], 144, y0 + 24, { "font-size": 22, "font-weight": 700, fill: "var(--ink)" });
       el("rect", { x: 144, y: y0 + 33, width: 140, height: 8, fill: "rgba(156,72,240,.2)" }, content);
       el("rect", { x: 144, y: y0 + 33, width: (140 * h[2]) / 8000, height: 8, fill: "var(--ultra)" }, content);
@@ -372,8 +379,7 @@ export function runSpectreScroll() {
       amts: SVGElement[] = [];
     HOLD.forEach((h, i) => {
       const y0 = 112 + i * 54;
-      el("circle", { cx: 68, cy: y0 + 26, r: 17, fill: h[3] }, B);
-      txt(B, h[1], 68, y0 + 32, { "font-size": 18, "font-weight": 800, "text-anchor": "middle", fill: h[4] });
+      el("image", { x: 51, y: y0 + 9, width: 34, height: 34, href: TOKEN_ICONS[h[0]] || "" }, B);
       txt(B, h[0], 98, y0 + 24, { "font-size": 22, "font-weight": 700, fill: "var(--ink)" });
       el("rect", { x: 98, y: y0 + 32, width: 200, height: 8, fill: "rgba(156,72,240,.2)" }, B);
       bars.push(el("rect", { x: 98, y: y0 + 32, width: 0, height: 8, fill: "var(--ultra)" }, B));

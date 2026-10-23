@@ -8,6 +8,7 @@ import { WAVES } from "@/lib/mock-portfolio";
 import { tradeWaveManagerAbi } from "@/lib/abi/TradeWaveManager";
 import { TRADE_WAVE_MANAGER_ADDRESS } from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
+import { TokenIcon } from "@/components/app/TokenIcon";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
 const WAVE_MANAGER_ADDR = TRADE_WAVE_MANAGER_ADDRESS[CHAIN_ID];
@@ -138,22 +139,26 @@ export default function WavesPage() {
             </p>
           </div>
 
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             {[
-              { id: "USDG_NVDA", label: "USDG ⇄ NVDA" },
-              { id: "USDG_ETH", label: "USDG ⇄ ETH" },
-              { id: "USDG_TSLA", label: "USDG ⇄ TSLA" },
+              { id: "USDG_NVDA", base: "USDG", quote: "NVDA" },
+              { id: "USDG_ETH", base: "USDG", quote: "ETH" },
+              { id: "USDG_TSLA", base: "USDG", quote: "TSLA" },
             ].map((p) => (
               <button
                 key={p.id}
                 onClick={() => setSelectedPair(p.id as typeof selectedPair)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                   selectedPair === p.id
                     ? "bg-[var(--ultra)] text-white"
                     : "bg-white/10 text-[var(--text-dim)] hover:text-white"
                 }`}
               >
-                {p.label}
+                <div className="flex -space-x-1.5">
+                  <TokenIcon symbol={p.base} size={16} />
+                  <TokenIcon symbol={p.quote} size={16} />
+                </div>
+                <span>{p.base} ⇄ {p.quote}</span>
               </button>
             ))}
           </div>

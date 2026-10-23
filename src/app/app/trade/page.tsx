@@ -22,6 +22,7 @@ import { robinhoodChainTestnet } from "@/lib/chains";
 import { tradeWaveManagerAbi } from "@/lib/abi/TradeWaveManager";
 import { erc20Abi } from "@/lib/abi/ERC20";
 import { IconExternal } from "@/components/app/Icons";
+import { TokenIcon } from "@/components/app/TokenIcon";
 
 interface ActiveIntent {
   id: string;
@@ -296,7 +297,10 @@ export default function TradePage() {
                 inputMode="decimal"
                 className="w-full bg-transparent text-2xl font-semibold text-[var(--glow)] outline-none placeholder:text-[var(--text-dimmer)]"
               />
-              <span className="text-sm font-semibold text-[var(--text-dim)]">{payAsset}</span>
+              <div className="flex shrink-0 items-center gap-2 rounded-lg bg-white/5 px-2.5 py-1">
+                <TokenIcon symbol={payAsset} size={22} />
+                <span className="text-sm font-semibold text-[var(--glow)]">{payAsset}</span>
+              </div>
             </div>
             <div className="mt-1.5 flex justify-between text-xs text-[var(--text-dimmer)]">
               <span>Available in wallet: {availableText}</span>
@@ -342,9 +346,15 @@ export default function TradePage() {
               </select>
             </div>
 
-            <p className="mt-2 text-3xl font-semibold text-[var(--glow)]">
-              ≈ {estOutput > 0 ? estOutput.toFixed(4) : "0.0"} {receiveAsset}
-            </p>
+            <div className="mt-2 flex items-center justify-between rounded-xl border border-[var(--app-border-strong)] bg-white/[0.02] px-4 py-3">
+              <p className="text-2xl font-semibold text-[var(--glow)]">
+                ≈ {estOutput > 0 ? estOutput.toFixed(4) : "0.0"}
+              </p>
+              <div className="flex shrink-0 items-center gap-2 rounded-lg bg-white/5 px-2.5 py-1">
+                <TokenIcon symbol={receiveAsset} size={22} />
+                <span className="text-sm font-semibold text-[var(--glow)]">{receiveAsset}</span>
+              </div>
+            </div>
 
             {/* Slippage Selector */}
             <div className="mt-5 border-t border-white/10 pt-4">

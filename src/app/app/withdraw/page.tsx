@@ -18,6 +18,7 @@ import {
 } from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { IconAlert } from "@/components/app/Icons";
+import { TokenIcon } from "@/components/app/TokenIcon";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[CHAIN_ID];
@@ -125,7 +126,7 @@ export default function WithdrawPage() {
           <label className="mt-6 block text-xs font-semibold tracking-[0.1em] text-[var(--text-dim)] uppercase">
             Asset
           </label>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-2 flex flex-wrap gap-2">
             {ASSETS.map((a) => (
               <button
                 key={a.symbol}
@@ -133,13 +134,14 @@ export default function WithdrawPage() {
                   setSymbol(a.symbol);
                   setAmount("");
                 }}
-                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
                   symbol === a.symbol
                     ? "bg-[var(--ultra)] text-white"
                     : "border border-[var(--app-border-strong)] text-[var(--text-dim)] hover:border-[var(--ultra)]"
                 }`}
               >
-                {a.symbol}
+                <TokenIcon symbol={a.symbol} size={20} />
+                <span>{a.symbol}</span>
               </button>
             ))}
           </div>
