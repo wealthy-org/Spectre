@@ -21,8 +21,14 @@ export const TRADE_WAVE_MANAGER_ADDRESS = {
   46630: "0x94849646b9fEE67fd5d97f2e59E2A58B5A691EBf", // Verified EIP-55 checksum
 } as const;
 
+export const WITHDRAW_VERIFIER_ADDRESS = {
+  46630: "0x9D9C9Bff3fb5A2F3dc30D8013428Fe4376eaF915", // Groth16 ZK Verifier
+} as const;
+
 export const MOCK_STOCK_TOKENS = {
   NVDA: "0x3Afb237cE8a6310CF6BCF2a5DCb9b72A4e02347A", // Verified EIP-55 checksum
   TSLA: "0xA8699478f7736413ea0FDb139b4f2c520A06847A", // Verified EIP-55 checksum
   AAPL: "0xD6C6F37eE0c54Bb21c4e7Fb261FC4b62DbBa48E5", // Verified EIP-55 checksum
 } as const;
+
+
