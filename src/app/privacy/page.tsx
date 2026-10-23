@@ -12,47 +12,49 @@ const POOL_ADDR = SHIELDED_POOL_ADDRESS[robinhoodChainTestnet.id];
 const ACTORS = [
   {
     role: "Public Chain Observer",
-    today: "Full visibility into balanceOf, all deposit/withdraw/transfer events, amounts, and sender/receiver addresses.",
-    phase2: "Only sees deposit & withdrawal transactions at the pool boundary and pool-level totals. Cannot link internal ownership, trades, or recipients.",
-    threatLevel: "High today / Minimal in Phase 2",
-    badgeTone: "muted" as const,
+    publicView: "Sees deposit & withdrawal transactions at the pool boundary and pool-level total volume.",
+
+    shieldedView: "Zero visibility into internal note balances, transfer counterparties, or individual trade wave intents.",
+    threatLevel: "Zero internal linkage",
+    badgeTone: "accent" as const,
   },
   {
-    role: "Relayer (Future)",
-    today: "Not yet active. Users submit transactions directly from their own connected wallet.",
-    phase2: "Can see that an authorized action was requested and could choose to censor it, but cryptographically CANNOT forge a proof, divert withdrawals, or alter slippage limits.",
+    role: "Relayer Service",
+    publicView: "Submits gasless batch withdrawals and wave intents to Robinhood Chain on behalf of users.",
+    shieldedView: "Sees authorized calldata but cryptographically CANNOT forge proofs, redirect funds, or alter slippage bounds.",
     threatLevel: "Censorship-only (Zero fund risk)",
     badgeTone: "accent" as const,
   },
   {
-    role: "Prover (Client-side)",
-    today: "Not yet active.",
-    phase2: "Running locally in your browser (WASM/snarkjs). The private witness (secret keys and notes) never leaves your device.",
+    role: "Client-Side Prover (Browser)",
+    publicView: "Executes Groth16 witness generation locally in WebAssembly (snarkjs).",
+    shieldedView: "Private notes and spending keys remain exclusively in client memory; witness never touches any network endpoint.",
     threatLevel: "Zero witness exposure",
     badgeTone: "accent" as const,
   },
   {
-    role: "Contract Operator / Owner",
-    today: "Single deployer EOA. Can call pause() or setAssetSupported(). Cannot drain user balances; withdraw() is strictly owner-free and unpausable.",
-    phase2: "Multisig + Timelock. Cannot forge balances, cannot withdraw user funds, cannot modify verification logic without delay.",
+    role: "Contract Owner / Governance",
+    publicView: "Can trigger temporary pauses on new deposits or configure supported collateral tokens.",
+    shieldedView: "Zero administrative privilege over user funds. Withdrawals are mathematically non-pausable and owner-free.",
     threatLevel: "Restricted administrative surface",
     badgeTone: "muted" as const,
   },
   {
-    role: "RPC Provider",
-    today: "Sees IP address, requested block ranges, and raw transactions prior to inclusion.",
-    phase2: "Still sees IP address and submitted calldata. ZK proofs protect state onchain, not transport-layer network metadata.",
+    role: "RPC Node Provider",
+    publicView: "Receives raw transaction payloads and observer IP addresses during RPC requests.",
+    shieldedView: "ZK proofs conceal note commitments and identity. Transport metadata remains standard EVM peer-to-peer data.",
     threatLevel: "Network metadata visible",
     badgeTone: "default" as const,
   },
   {
-    role: "Frontend Interface",
-    today: "Reads directly from RPC node event logs. No database, no tracking analytics, no user profiling.",
-    phase2: "Maintains zero-knowledge client posture: all private accounts and keys are derived locally in browser memory.",
+    role: "Frontend Interface (Spectre Web)",
+    publicView: "Static WebApp that interacts directly with Robinhood Chain RPC. No centralized database or backend user profiles.",
+    shieldedView: "All cryptographic private account states are derived locally in client memory.",
     threatLevel: "Zero backend tracking",
     badgeTone: "accent" as const,
   },
 ];
+
 
 const SCENARIOS = [
   {
@@ -321,9 +323,9 @@ export default function PrivacyPage() {
               <thead className="bg-white/5 text-[11px] uppercase tracking-wider text-[var(--text-dim)]">
                 <tr>
                   <th className="py-3 px-5 sm:px-6">Actor</th>
-                  <th className="py-3 px-5 sm:px-6">What they see today (Phase A)</th>
-                  <th className="py-3 px-5 sm:px-6">What they see in Phase 2 (ZK)</th>
-                  <th className="py-3 px-5 sm:px-6">Worst Case Risk</th>
+                  <th className="py-3 px-5 sm:px-6">Public Blockchain Visibility</th>
+                  <th className="py-3 px-5 sm:px-6">ZK Shielded State</th>
+                  <th className="py-3 px-5 sm:px-6">Information Boundary</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
@@ -333,10 +335,10 @@ export default function PrivacyPage() {
                       {a.role}
                     </td>
                     <td className="py-4 px-5 sm:px-6 text-xs text-[var(--text-dim)] leading-relaxed">
-                      {a.today}
+                      {a.publicView}
                     </td>
                     <td className="py-4 px-5 sm:px-6 text-xs text-[rgba(235,221,255,.85)] leading-relaxed">
-                      {a.phase2}
+                      {a.shieldedView}
                     </td>
                     <td className="py-4 px-5 sm:px-6">
                       <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-mono text-[var(--lilac)]">
@@ -346,6 +348,7 @@ export default function PrivacyPage() {
                   </tr>
                 ))}
               </tbody>
+
             </table>
           </div>
         </Card>
