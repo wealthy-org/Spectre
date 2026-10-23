@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatUnits, type Log } from "viem";
+import { formatUnits, getAddress, type Log } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { Card, PageHeader, Pill } from "@/components/app/ui";
 import { shieldedPoolAbi } from "@/lib/abi/ShieldedPool";
@@ -105,6 +105,13 @@ export default function ActivityPage() {
     setLoading(true);
 
     (async () => {
+      let checksumAddress: `0x${string}`;
+      try {
+        checksumAddress = getAddress(address);
+      } catch {
+        checksumAddress = address as `0x${string}`;
+      }
+
       const latestBlock = await publicClient.getBlockNumber();
       // Keep search within at most 200,000 blocks to prevent excessive RPC calls
       const effectiveFromBlock =
@@ -119,7 +126,7 @@ export default function ActivityPage() {
             address: POOL_ADDRESS,
             abi: shieldedPoolAbi,
             eventName: "Deposited",
-            args: { owner: address },
+            args: { owner: checksumAddress },
           },
           effectiveFromBlock,
           latestBlock
@@ -130,7 +137,7 @@ export default function ActivityPage() {
             address: POOL_ADDRESS,
             abi: shieldedPoolAbi,
             eventName: "Withdrawn",
-            args: { owner: address },
+            args: { owner: checksumAddress },
           },
           effectiveFromBlock,
           latestBlock
@@ -151,7 +158,7 @@ export default function ActivityPage() {
             address: TRADE_WAVE_MANAGER_ADDRESS[CHAIN_ID],
             abi: tradeWaveManagerAbi,
             eventName: "IntentSubmitted",
-            args: { owner: address },
+            args: { owner: checksumAddress },
           },
           effectiveFromBlock,
           latestBlock
@@ -160,8 +167,8 @@ export default function ActivityPage() {
 
       const sentOrReceived = (transferred as (Log & { args: Record<string, unknown> })[]).filter(
         (l) =>
-          (l.args.from as string | undefined)?.toLowerCase() === address.toLowerCase() ||
-          (l.args.to as string | undefined)?.toLowerCase() === address.toLowerCase()
+          (l.args.from as string | undefined)?.toLowerCase() === checksumAddress.toLowerCase() ||
+          (l.args.to as string | undefined)?.toLowerCase() === checksumAddress.toLowerCase()
       );
 
       const allLogs = [
