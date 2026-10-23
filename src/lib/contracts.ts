@@ -18,7 +18,7 @@ export const MOCK_USDG_ADDRESS = {
 export const NATIVE_ASSET = "0x0000000000000000000000000000000000000000" as const;
 
 export const TRADE_WAVE_MANAGER_ADDRESS = {
-  46630: "0x94849646b9fEE67fd5d97f2e59E2A58B5A691EBf", // Verified EIP-55 checksum
+  46630: "0xB7a32FBF021A49e7601669c82F835959daC6Ab69", // Deployed TradeWaveManager onchain
 } as const;
 
 export const WITHDRAW_VERIFIER_ADDRESS = {
@@ -26,9 +26,10 @@ export const WITHDRAW_VERIFIER_ADDRESS = {
 } as const;
 
 export const MOCK_STOCK_TOKENS = {
-  NVDA: "0x3Afb237cE8a6310CF6BCF2a5DCb9b72A4e02347A", // Verified EIP-55 checksum
-  TSLA: "0xA8699478f7736413ea0FDb139b4f2c520A06847A", // Verified EIP-55 checksum
+  NVDA: "0x0808d14583f380C0Dc4703465e9eCb2C7d2B2549", // Deployed MockNVDA onchain
+  TSLA: "0xb6601EB39A42f54ebE1889630be21b9251d485B7", // Deployed MockTSLA onchain
   AAPL: "0xD6C6F37eE0c54Bb21c4e7Fb261FC4b62DbBa48E5", // Verified EIP-55 checksum
 } as const;
+
 
 
