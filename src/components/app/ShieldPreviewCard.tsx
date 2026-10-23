@@ -20,7 +20,7 @@ export function ShieldPreviewCard() {
           <span>How it enters</span>
         </div>
         <Link
-          href="/docs"
+          href="/app/rules"
           className="text-xs font-medium text-[var(--text-dim)] transition-colors hover:text-[var(--lilac)]"
         >
           Privacy best practice ↗
