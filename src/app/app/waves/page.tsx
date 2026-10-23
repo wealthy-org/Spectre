@@ -255,19 +255,19 @@ export default function WavesPage() {
           <div className="grid gap-4 sm:grid-cols-3 text-xs">
             <div className="rounded-xl border border-white/10 bg-white/5 p-3.5">
               <span className="text-[var(--text-dimmer)] uppercase">Total Buy Intents</span>
-              <p className="mt-1 text-xl font-bold text-emerald-400">
-                ${NETTING_DATA.buyVolume.toLocaleString()}
+              <p className="mt-1 text-xl font-bold text-emerald-400 font-mono">
+                ${NETTING_DATA.buyVolume.toLocaleString("en-US")}
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/5 p-3.5">
               <span className="text-[var(--text-dimmer)] uppercase">Total Sell Intents</span>
-              <p className="mt-1 text-xl font-bold text-indigo-400">
-                ${NETTING_DATA.sellVolume.toLocaleString()}
+              <p className="mt-1 text-xl font-bold text-indigo-400 font-mono">
+                ${NETTING_DATA.sellVolume.toLocaleString("en-US")}
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/5 p-3.5">
               <span className="text-[var(--text-dimmer)] uppercase">Internal Match Rate</span>
-              <p className="mt-1 text-xl font-bold text-[var(--lilac)]">
+              <p className="mt-1 text-xl font-bold text-[var(--lilac)] font-mono">
                 {NETTING_DATA.crossPct}% Net Crossed
               </p>
             </div>
@@ -279,7 +279,7 @@ export default function WavesPage() {
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
                 <span className="font-semibold text-emerald-300">
-                  Internal Cross: ${NETTING_DATA.matched.toLocaleString()}
+                  Internal Cross: ${NETTING_DATA.matched.toLocaleString("en-US")}
                 </span>
                 <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-mono font-bold text-emerald-300">
                   {NETTING_DATA.crossPct}% · 0 Slippage
@@ -288,7 +288,7 @@ export default function WavesPage() {
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
                 <span className="font-semibold text-amber-300">
-                  Imbalance: ${NETTING_DATA.imbalance.toLocaleString()}
+                  Imbalance: ${NETTING_DATA.imbalance.toLocaleString("en-US")}
                 </span>
                 <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-mono font-bold text-amber-300">
                   {100 - NETTING_DATA.crossPct}% · {NETTING_DATA.direction}
@@ -312,8 +312,9 @@ export default function WavesPage() {
           </div>
 
           <p className="text-xs text-[var(--text-dim)] leading-relaxed">
-            Instead of executing individual user transactions, Spectre crosses matched buy and sell volume inside the contract. The public blockchain only sees <strong>1 aggregate swap transaction</strong> for the remaining ${NETTING_DATA.imbalance.toLocaleString()} imbalance.
+            Instead of executing individual user transactions, Spectre crosses matched buy and sell volume inside the contract. The public blockchain only sees <strong>1 aggregate swap transaction</strong> for the remaining ${NETTING_DATA.imbalance.toLocaleString("en-US")} imbalance.
           </p>
+
         </div>
       </Card>
 
