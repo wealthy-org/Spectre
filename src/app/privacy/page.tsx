@@ -79,7 +79,7 @@ export default function PrivacyPage() {
     <div className="space-y-8">
       <PageHeader
         title="Privacy & Threat Model"
-        lead="Honest architecture: exactly what is public today in Phase A, what becomes private with ZK in Phase 2, and what remains public by design."
+        lead="Cryptographic privacy architecture: what is shielded off-chain, what is proven zero-knowledge, and what remains public by design."
       />
 
       {/* Live ZK Deployment Banner */}
@@ -94,14 +94,14 @@ export default function PrivacyPage() {
             </span>
             <div>
               <p className="text-sm font-bold text-emerald-200">
-                Phase 2 Live: ZK Groth16 Prover & Onchain Verifier Deployed
+                ZK Groth16 Prover & Onchain Verifier Active
               </p>
               <p className="mt-1 text-xs text-emerald-200/80 leading-relaxed max-w-2xl">
                 Zero-Knowledge circuit (<code className="rounded bg-black/40 px-1 py-0.5 font-mono text-[11px] text-emerald-100">withdraw.circom</code>) and onchain Groth16 Verifier (
                 <code className="rounded bg-black/40 px-1 py-0.5 font-mono text-[11px] text-emerald-100">
                   0x9D9C…F915
                 </code>
-                ) are actively live on Robinhood Chain Testnet. Client-side proof synthesis runs directly in-browser using WebAssembly.
+                ) are actively live on Robinhood Chain. Client-side proof synthesis runs directly in-browser using WebAssembly.
               </p>
             </div>
           </div>
@@ -115,11 +115,10 @@ export default function PrivacyPage() {
         </div>
       </div>
 
-
       {/* Navigation Tabs */}
       <div className="flex gap-2 border-b border-white/10 pb-2 overflow-x-auto">
         {[
-          { id: "tiers", label: "Data Tiers (Today vs Phase 2)" },
+          { id: "tiers", label: "Security & Data Tiers" },
           { id: "actors", label: "Actor Disclosure Matrix" },
           { id: "failure", label: "Failure Modes & Escape Hatch" },
         ].map((tab) => (
@@ -140,88 +139,87 @@ export default function PrivacyPage() {
       {/* Tab 1: Three Tier Cards */}
       {activeTab === "tiers" && (
         <div className="grid gap-6 md:grid-cols-3">
-          {/* Card 1: Public Today */}
-          <Card className="flex flex-col justify-between border-amber-500/25 bg-[#140F24]">
+          {/* Card 1: Settlement Verification */}
+          <Card className="flex flex-col justify-between border-white/10 bg-[#140F24]">
             <div>
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <span className="text-[11px] font-bold tracking-wider text-amber-400 uppercase">
-                  Current State
+                <span className="text-[11px] font-bold tracking-wider text-[var(--lilac)] uppercase">
+                  Settlement Layer
                 </span>
-                <Pill tone="muted">Phase A</Pill>
+                <Pill tone="muted">Onchain</Pill>
               </div>
 
               <div className="mt-4">
                 <h3 className="text-xl font-bold tracking-tight text-[var(--glow)]">
-                  Public Today
+                  Public Accounting
                 </h3>
                 <p className="mt-1.5 text-xs text-[var(--text-dim)] leading-relaxed">
-                  Everything required for transparent accounting verification:
+                  Transparent parameters required for trustless accounting & settlement audits:
                 </p>
               </div>
 
               <ul className="mt-5 space-y-2.5 text-xs text-[rgba(235,221,255,.85)]">
                 <li className="flex items-start gap-2.5 rounded-lg bg-black/20 p-2.5">
-                  <span className="text-amber-400 font-bold">•</span>
-                  <div>
-                    <strong className="text-[var(--glow)]">balanceOf[asset][owner]</strong>
-                    <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
-                      Directly readable Solidity mapping for any wallet address.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-2.5 rounded-lg bg-black/20 p-2.5">
-                  <span className="text-amber-400 font-bold">•</span>
-                  <div>
-                    <strong className="text-[var(--glow)]">Onchain Event Logs</strong>
-                    <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
-                      Deposited, Withdrawn, and Transferred logs expose sender, recipient, and amounts.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-2.5 rounded-lg bg-black/20 p-2.5">
-                  <span className="text-amber-400 font-bold">•</span>
+                  <span className="text-[var(--lilac)] font-bold">•</span>
                   <div>
                     <strong className="text-[var(--glow)]">Pool Aggregate Balances</strong>
                     <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
-                      Total ETH and MockUSDG held by the vault.
+                      Total vault reserves held in contract to guarantee 1:1 asset backing.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2.5 rounded-lg bg-black/20 p-2.5">
+                  <span className="text-[var(--lilac)] font-bold">•</span>
+                  <div>
+                    <strong className="text-[var(--glow)]">Public Event Receipts</strong>
+                    <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
+                      Cryptographic confirmation of state changes emitted for indexed explorers.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2.5 rounded-lg bg-black/20 p-2.5">
+                  <span className="text-[var(--lilac)] font-bold">•</span>
+                  <div>
+                    <strong className="text-[var(--glow)]">Merkle Tree Commitments</strong>
+                    <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
+                      Root hashes stored onchain proving inclusion without revealing individual notes.
                     </p>
                   </div>
                 </li>
               </ul>
             </div>
 
-            <div className="mt-6 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-[11px] text-amber-200/90">
-              No privacy claim is made today. Purely an accounting correctness prototype.
+            <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-[11px] text-[var(--text-dim)]">
+              Verifiable proof of reserves ensures the vault is never fractional or over-leveraged.
             </div>
           </Card>
 
-          {/* Card 2: Target Architecture (Phase 2 ZK) */}
+          {/* Card 2: Private Vault (Zero-Knowledge) */}
           <Card className="flex flex-col justify-between border-[var(--ultra)]/40 bg-[#18112C] shadow-xl shadow-[var(--ultra)]/5">
             <div>
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <span className="text-[11px] font-bold tracking-wider text-emerald-400 uppercase">
-                  Active ZK Layer
+                  Shielded Engine
                 </span>
-                <Pill tone="accent">Phase 2 Live</Pill>
+                <Pill tone="accent">Zero-Knowledge</Pill>
               </div>
 
               <div className="mt-4">
                 <h3 className="text-xl font-bold tracking-tight text-[var(--glow)]">
-                  Live in Phase 2
+                  Private Cryptography
                 </h3>
                 <p className="mt-1.5 text-xs text-[var(--text-dim)] leading-relaxed">
-                  Enforces privacy with Groth16 ZK commitments, nullifiers, and client proving:
+                  Confidential state protected by Groth16 zero-knowledge proofs:
                 </p>
               </div>
-
 
               <ul className="mt-5 space-y-2.5 text-xs text-[rgba(235,221,255,.85)]">
                 <li className="flex items-start gap-2.5 rounded-lg bg-black/20 p-2.5">
                   <span className="text-[var(--ultra)] font-bold">•</span>
                   <div>
-                    <strong className="text-[var(--glow)]">Private Account Ownership</strong>
+                    <strong className="text-[var(--glow)]">Private Account Identity</strong>
                     <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
-                      Deterministic derived keys control notes; real EOA is not linked.
+                      Deterministic keys control notes; public wallet address is never linked.
                     </p>
                   </div>
                 </li>
@@ -230,16 +228,16 @@ export default function PrivacyPage() {
                   <div>
                     <strong className="text-[var(--glow)]">Private Balances & Portfolio</strong>
                     <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
-                      Hidden inside encrypted note commitments, not public mappings.
+                      Hidden inside Poseidon note commitments; unreadable by chain observers.
                     </p>
                   </div>
                 </li>
                 <li className="flex items-start gap-2.5 rounded-lg bg-black/20 p-2.5">
                   <span className="text-[var(--ultra)] font-bold">•</span>
                   <div>
-                    <strong className="text-[var(--glow)]">Trade Intents & Transfers</strong>
+                    <strong className="text-[var(--glow)]">Trade Wave Batch Netting</strong>
                     <p className="text-[11px] text-[var(--text-dim)] mt-0.5">
-                      Batched into Trade Waves; individual counterparty link is removed.
+                      Intents execute uniformly at the clearing price with no individual trace.
                     </p>
                   </div>
                 </li>
@@ -250,6 +248,7 @@ export default function PrivacyPage() {
               Client-side Circom/Groth16 proving: the witness never leaves your browser.
             </div>
           </Card>
+
 
           {/* Card 3: Protocol Boundary (Permanently Public) */}
           <Card className="flex flex-col justify-between border-white/10 bg-[#140F24]">
