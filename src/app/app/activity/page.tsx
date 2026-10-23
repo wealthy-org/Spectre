@@ -48,6 +48,46 @@ function timeAgo(timestampSec: number) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
+const MAX_BLOCK_RANGE = 40000n;
+
+async function fetchContractEventsChunked(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  client: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: any,
+  fromBlock: bigint,
+  toBlock: bigint
+) {
+  if (toBlock < fromBlock) return [];
+  const chunks: { from: bigint; to: bigint }[] = [];
+  let cur = fromBlock;
+  while (cur <= toBlock) {
+    const next = cur + MAX_BLOCK_RANGE - 1n;
+    chunks.push({
+      from: cur,
+      to: next > toBlock ? toBlock : next,
+    });
+    cur = next + 1n;
+  }
+
+  const results = await Promise.all(
+    chunks.map((c) =>
+      client
+        .getContractEvents({
+          ...params,
+          fromBlock: c.from,
+          toBlock: c.to,
+        })
+        .catch((err: unknown) => {
+          console.warn("Chunk getContractEvents error:", err);
+          return [];
+        })
+    )
+  );
+
+  return results.flat();
+}
+
 export default function ActivityPage() {
   const { address, isConnected, chainId } = useAccount();
   const publicClient = usePublicClient({ chainId: CHAIN_ID });
@@ -65,38 +105,57 @@ export default function ActivityPage() {
     setLoading(true);
 
     (async () => {
+      const latestBlock = await publicClient.getBlockNumber();
+      // Keep search within at most 200,000 blocks to prevent excessive RPC calls
+      const effectiveFromBlock =
+        latestBlock - DEPLOY_BLOCK > 200000n
+          ? latestBlock - 200000n
+          : DEPLOY_BLOCK;
+
       const [deposited, withdrawn, transferred, tradeIntents] = await Promise.all([
-        publicClient.getContractEvents({
-          address: POOL_ADDRESS,
-          abi: shieldedPoolAbi,
-          eventName: "Deposited",
-          args: { owner: address },
-          fromBlock: DEPLOY_BLOCK,
-          toBlock: "latest",
-        }),
-        publicClient.getContractEvents({
-          address: POOL_ADDRESS,
-          abi: shieldedPoolAbi,
-          eventName: "Withdrawn",
-          args: { owner: address },
-          fromBlock: DEPLOY_BLOCK,
-          toBlock: "latest",
-        }),
-        publicClient.getContractEvents({
-          address: POOL_ADDRESS,
-          abi: shieldedPoolAbi,
-          eventName: "Transferred",
-          fromBlock: DEPLOY_BLOCK,
-          toBlock: "latest",
-        }),
-        publicClient.getContractEvents({
-          address: TRADE_WAVE_MANAGER_ADDRESS[CHAIN_ID],
-          abi: tradeWaveManagerAbi,
-          eventName: "IntentSubmitted",
-          args: { owner: address },
-          fromBlock: DEPLOY_BLOCK,
-          toBlock: "latest",
-        }),
+        fetchContractEventsChunked(
+          publicClient,
+          {
+            address: POOL_ADDRESS,
+            abi: shieldedPoolAbi,
+            eventName: "Deposited",
+            args: { owner: address },
+          },
+          effectiveFromBlock,
+          latestBlock
+        ),
+        fetchContractEventsChunked(
+          publicClient,
+          {
+            address: POOL_ADDRESS,
+            abi: shieldedPoolAbi,
+            eventName: "Withdrawn",
+            args: { owner: address },
+          },
+          effectiveFromBlock,
+          latestBlock
+        ),
+        fetchContractEventsChunked(
+          publicClient,
+          {
+            address: POOL_ADDRESS,
+            abi: shieldedPoolAbi,
+            eventName: "Transferred",
+          },
+          effectiveFromBlock,
+          latestBlock
+        ),
+        fetchContractEventsChunked(
+          publicClient,
+          {
+            address: TRADE_WAVE_MANAGER_ADDRESS[CHAIN_ID],
+            abi: tradeWaveManagerAbi,
+            eventName: "IntentSubmitted",
+            args: { owner: address },
+          },
+          effectiveFromBlock,
+          latestBlock
+        ),
       ]);
 
       const sentOrReceived = (transferred as (Log & { args: Record<string, unknown> })[]).filter(
