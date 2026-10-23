@@ -493,22 +493,14 @@ export default function PrivacyRulesPage() {
       </header>
 
       {/* FULL VIEW CANVAS STAGE */}
-      <main className="relative flex-1 w-full min-h-[360px] overflow-hidden bg-[#07050e]">
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 block h-full w-full select-none cursor-crosshair touch-none"
-        />
-      </main>
-
-      {/* FULL VIEW CANVAS STAGE */}
-      <main className="relative flex-1 w-full min-h-[360px] overflow-hidden bg-[#07050e]">
+      <main className="relative flex-1 w-full min-h-0 overflow-hidden bg-[#07050e]">
         <canvas
           ref={canvasRef}
           className="absolute inset-0 block h-full w-full select-none cursor-crosshair touch-none"
         />
 
         {/* FLOATING EXPLAINER CARD OVER CANVAS */}
-        <div className="absolute bottom-4 left-6 z-20 max-w-[560px] w-[calc(100%-3rem)] sm:w-auto rounded-2xl border border-white/10 bg-[#0c0916]/95 p-4.5 shadow-2xl backdrop-blur-xl transition-all">
+        <div className="absolute bottom-6 left-6 z-20 max-w-[560px] w-[calc(100%-3rem)] sm:w-auto rounded-2xl border border-white/10 bg-[#0c0916]/95 p-4.5 shadow-2xl backdrop-blur-xl transition-all">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             {/* Left Diagram: Realistic 3D/Isometric Wallet - Pool - Wallet */}
             <div className="relative rounded-xl border border-white/10 bg-black/50 p-3 sm:w-[220px] shrink-0 overflow-hidden">
