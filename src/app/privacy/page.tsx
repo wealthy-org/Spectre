@@ -82,35 +82,39 @@ export default function PrivacyPage() {
         lead="Honest architecture: exactly what is public today in Phase A, what becomes private with ZK in Phase 2, and what remains public by design."
       />
 
-      {/* Honest Warning Banner */}
-      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+      {/* Live ZK Deployment Banner */}
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300">
-              <IconAlert className="h-4 w-4" />
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300">
+              <span className="relative flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500" />
+              </span>
             </span>
             <div>
-              <p className="text-sm font-bold text-amber-200">
-                Phase A Status: Transparent Prototype (Zero Privacy Guarantee Today)
+              <p className="text-sm font-bold text-emerald-200">
+                Phase 2 Live: ZK Groth16 Prover & Onchain Verifier Deployed
               </p>
-              <p className="mt-1 text-xs text-amber-200/80 leading-relaxed max-w-2xl">
-                Current balances on Robinhood Chain Testnet are stored in a public mapping (
-                <code className="rounded bg-black/40 px-1 py-0.5 font-mono text-[11px] text-amber-100">
-                  balanceOf
+              <p className="mt-1 text-xs text-emerald-200/80 leading-relaxed max-w-2xl">
+                Zero-Knowledge circuit (<code className="rounded bg-black/40 px-1 py-0.5 font-mono text-[11px] text-emerald-100">withdraw.circom</code>) and onchain Groth16 Verifier (
+                <code className="rounded bg-black/40 px-1 py-0.5 font-mono text-[11px] text-emerald-100">
+                  0x9D9C…F915
                 </code>
-                ) in order to prove deposit, transfer, and withdrawal accounting correctness before swapping in ZK commitments in Phase 2.
+                ) are actively live on Robinhood Chain Testnet. Client-side proof synthesis runs directly in-browser using WebAssembly.
               </p>
             </div>
           </div>
           <Link
-            href={`https://explorer.testnet.chain.robinhood.com/address/${POOL_ADDR}`}
+            href="https://explorer.testnet.chain.robinhood.com/address/0x9D9C9Bff3fb5A2F3dc30D8013428Fe4376eaF915"
             target="_blank"
-            className="shrink-0 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-400/20 text-center"
+            className="shrink-0 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-xs font-semibold text-emerald-200 transition-colors hover:bg-emerald-400/20 text-center"
           >
-            Inspect Contract Onchain ↗
+            Inspect ZK Verifier Onchain ↗
           </Link>
         </div>
       </div>
+
 
       {/* Navigation Tabs */}
       <div className="flex gap-2 border-b border-white/10 pb-2 overflow-x-auto">
@@ -195,20 +199,21 @@ export default function PrivacyPage() {
           <Card className="flex flex-col justify-between border-[var(--ultra)]/40 bg-[#18112C] shadow-xl shadow-[var(--ultra)]/5">
             <div>
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <span className="text-[11px] font-bold tracking-wider text-[var(--lilac)] uppercase">
-                  Target Architecture
+                <span className="text-[11px] font-bold tracking-wider text-emerald-400 uppercase">
+                  Active ZK Layer
                 </span>
-                <Pill tone="accent">Phase 2 ZK</Pill>
+                <Pill tone="accent">Phase 2 Live</Pill>
               </div>
 
               <div className="mt-4">
                 <h3 className="text-xl font-bold tracking-tight text-[var(--glow)]">
-                  Private in Phase 2
+                  Live in Phase 2
                 </h3>
                 <p className="mt-1.5 text-xs text-[var(--text-dim)] leading-relaxed">
-                  Replaces public state with ZK commitments, nullifiers, and client proving:
+                  Enforces privacy with Groth16 ZK commitments, nullifiers, and client proving:
                 </p>
               </div>
+
 
               <ul className="mt-5 space-y-2.5 text-xs text-[rgba(235,221,255,.85)]">
                 <li className="flex items-start gap-2.5 rounded-lg bg-black/20 p-2.5">
