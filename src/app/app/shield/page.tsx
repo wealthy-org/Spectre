@@ -20,6 +20,7 @@ import {
 } from "@/lib/contracts";
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { TokenIcon } from "@/components/app/TokenIcon";
+import { ShieldPreviewCard } from "@/components/app/ShieldPreviewCard";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[CHAIN_ID];
@@ -280,36 +281,28 @@ export default function ShieldPage() {
         </Card>
 
         <div className="flex flex-col gap-6">
+          <ShieldPreviewCard />
+
           <Card>
             <p className="text-sm font-semibold text-[var(--glow)]">How shielding works</p>
             <ol className="mt-3 space-y-3 text-sm text-[var(--text-dim)]">
               <li className="flex gap-3">
                 <Pill tone="muted">1</Pill>
-                <span>Connect the wallet you already use.</span>
+                <span>Connect the wallet you already use on Robinhood Chain.</span>
               </li>
               <li className="flex gap-3">
                 <Pill tone="muted">2</Pill>
                 <span>
-                  ERC-20s need an approval transaction first; ETH skips straight to the deposit.
+                  ERC-20s (NVDA, TSLA, AAPL, USDG) need a quick 1-click approval first; ETH deposits directly.
                 </span>
               </li>
               <li className="flex gap-3">
                 <Pill tone="muted">3</Pill>
                 <span>
-                  Your balance is credited in the pool&apos;s public ledger
-                  (Phase A — see &quot;what stays public&quot;).
+                  Your assets enter the pool and can be traded privately across periodic Trade Waves.
                 </span>
               </li>
             </ol>
-          </Card>
-          <Card>
-            <p className="text-sm font-semibold text-[var(--glow)]">What stays public</p>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--text-dim)]">
-              This is the Phase A transparent prototype: the deposit transaction
-              AND the resulting balance are both visible onchain
-              (<code>balanceOf</code> is a public mapping). Commitments and
-              nullifiers replace this in Phase 2 — see the developer brief.
-            </p>
           </Card>
         </div>
       </div>
