@@ -120,13 +120,33 @@ export default function PortfolioPage() {
             .catch(() => []),
         ]);
 
-        if (!isSubscribed) return;
+        const symbolMap = (asset: string) => {
+          const l = asset?.toLowerCase() ?? "";
+          if (l === NATIVE_ASSET.toLowerCase()) return "ETH";
+          if (l === MOCK_USDG_ADDRESS[robinhoodChainTestnet.id]?.toLowerCase()) return "USDG";
+          if (l === MOCK_STOCK_TOKENS.NVDA?.toLowerCase()) return "NVDA";
+          if (l === MOCK_STOCK_TOKENS.TSLA?.toLowerCase()) return "TSLA";
+          if (l === MOCK_STOCK_TOKENS.AAPL?.toLowerCase()) return "AAPL";
+          return "tokens";
+        };
+
+        const formatSmartAmount = (raw: bigint, asset: string) => {
+          const val = Number(formatUnits(raw, 18));
+          const sym = symbolMap(asset);
+          if (val === 0) return `0 ${sym}`;
+          if (val < 0.001) return `${val.toFixed(6)} ${sym}`;
+          if (val < 1) return `${val.toFixed(4)} ${sym}`;
+          return `${val.toFixed(2)} ${sym}`;
+        };
 
         const events = [
           ...depLogs.map((l) => ({
             id: `${l.transactionHash}-${l.logIndex}`,
             kind: "Shield",
-            detail: `Deposited ${Number(formatUnits((l.args as { amount?: bigint }).amount ?? 0n, 18)).toFixed(2)} tokens`,
+            detail: `Deposited ${formatSmartAmount(
+              (l.args as { amount?: bigint }).amount ?? 0n,
+              (l.args as { asset?: string }).asset ?? ""
+            )}`,
             time: "Recent",
             status: "Confirmed",
             blockNumber: l.blockNumber,
@@ -134,7 +154,10 @@ export default function PortfolioPage() {
           ...withLogs.map((l) => ({
             id: `${l.transactionHash}-${l.logIndex}`,
             kind: "Withdraw",
-            detail: `Withdrew ${Number(formatUnits((l.args as { amount?: bigint }).amount ?? 0n, 18)).toFixed(2)} tokens`,
+            detail: `Withdrew ${formatSmartAmount(
+              (l.args as { amount?: bigint }).amount ?? 0n,
+              (l.args as { asset?: string }).asset ?? ""
+            )}`,
             time: "Recent",
             status: "Confirmed",
             blockNumber: l.blockNumber,
@@ -143,6 +166,7 @@ export default function PortfolioPage() {
 
         events.sort((a, b) => (b.blockNumber > a.blockNumber ? 1 : -1));
         setRealActivity(events.slice(0, 3));
+
       } catch (err) {
         console.warn("Failed to fetch portfolio recent activity:", err);
       }
@@ -273,9 +297,16 @@ export default function PortfolioPage() {
                   <TokenIcon symbol={h.ticker} size={32} />
                   <div>
                     <p className="text-sm font-semibold text-[var(--glow)]">{h.ticker}</p>
-                    <p className="text-xs text-[rgba(235,221,255,.55)]">
-                      {h.amount !== undefined ? `${h.amount.toFixed(h.ticker === "ETH" ? 4 : 2)} ${h.ticker}` : h.name}
+                    <p className="text-xs text-[rgba(235,221,255,.55)] font-mono">
+                      {h.amount !== undefined
+                        ? h.amount === 0
+                          ? `0.00 ${h.ticker}`
+                          : h.amount < 0.0001
+                          ? `${h.amount.toFixed(6)} ${h.ticker}`
+                          : `${h.amount.toFixed(h.ticker === "ETH" ? 4 : 2)} ${h.ticker}`
+                        : h.name}
                     </p>
+
                   </div>
                 </div>
                 <div className="text-right">
