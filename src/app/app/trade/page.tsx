@@ -569,7 +569,7 @@ export default function TradePage() {
 
             {/* Slippage Tolerance Selector */}
             <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-xs">
-              <span className="text-[var(--text-dim)]">Slippage Tolerance (Brief §31)</span>
+              <span className="text-[var(--text-dim)]">Slippage Tolerance</span>
               <div className="flex gap-1.5">
                 {["0.1", "0.5", "1.0"].map((s) => (
                   <button

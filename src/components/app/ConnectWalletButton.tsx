@@ -130,7 +130,7 @@ export function ConnectWalletButton() {
                   <div className="mt-3 space-y-2.5">
                     <div>
                       <span className="text-[10px] text-[var(--text-dimmer)] uppercase">
-                        Shield Address (Brief §12)
+                        Shield Address
                       </span>
                       <p className="font-mono text-[11px] text-[var(--lilac)] break-all mt-0.5">
                         {keys.privateAddress}

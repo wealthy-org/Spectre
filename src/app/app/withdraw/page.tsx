@@ -517,7 +517,7 @@ export default function WithdrawPage() {
               {buttonLabel}
             </button>
             <p className="mt-2 text-center text-[10px] text-[var(--text-dimmer)]">
-              Testnet contract settles immediately — Withdrawal Wave batching is an offchain scheduler layer (brief §20).
+              Testnet contract settles immediately — Withdrawal Wave batching runs via the offchain scheduler layer.
             </p>
           </div>
         </div>

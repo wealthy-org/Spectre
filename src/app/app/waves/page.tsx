@@ -217,7 +217,7 @@ export default function WavesPage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-[var(--lilac)] uppercase">
-                Trade Wave Netting Engine (Brief §25)
+                Trade Wave Netting Engine
               </span>
               <Pill tone="accent">Simulated Live</Pill>
             </div>
