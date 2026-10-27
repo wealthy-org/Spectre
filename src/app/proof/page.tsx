@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Card, PageHeader, Pill } from "@/components/app/ui";
+import { IconExternal } from "@/components/app/Icons";
 
 type WaveProof = {
   id: number;
@@ -306,21 +307,53 @@ export default function ProofPage() {
                 </div>
 
                 <div>
-                  <span className="text-[var(--text-dimmer)] uppercase tracking-wide">
-                    Execution Tx
-                  </span>
-                  <p className="mt-0.5 break-all font-mono text-[11px] text-[rgba(235,221,255,.8)]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--text-dimmer)] uppercase tracking-wide">
+                      Execution Tx
+                    </span>
+                    <a
+                      href={`https://explorer.testnet.chain.robinhood.com/tx/${selectedProof.executionTx}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-[10px] text-[var(--lilac)] hover:underline"
+                    >
+                      <span>Explorer</span>
+                      <IconExternal className="h-3 w-3" />
+                    </a>
+                  </div>
+                  <a
+                    href={`https://explorer.testnet.chain.robinhood.com/tx/${selectedProof.executionTx}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-0.5 block break-all font-mono text-[11px] text-[rgba(235,221,255,.8)] hover:text-white hover:underline transition-colors"
+                  >
                     {selectedProof.executionTx}
-                  </p>
+                  </a>
                 </div>
 
                 <div>
-                  <span className="text-[var(--text-dimmer)] uppercase tracking-wide">
-                    Settlement Tx
-                  </span>
-                  <p className="mt-0.5 break-all font-mono text-[11px] text-[rgba(235,221,255,.8)]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--text-dimmer)] uppercase tracking-wide">
+                      Settlement Tx
+                    </span>
+                    <a
+                      href={`https://explorer.testnet.chain.robinhood.com/tx/${selectedProof.settlementTx}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-[10px] text-[var(--lilac)] hover:underline"
+                    >
+                      <span>Explorer</span>
+                      <IconExternal className="h-3 w-3" />
+                    </a>
+                  </div>
+                  <a
+                    href={`https://explorer.testnet.chain.robinhood.com/tx/${selectedProof.settlementTx}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-0.5 block break-all font-mono text-[11px] text-[rgba(235,221,255,.8)] hover:text-white hover:underline transition-colors"
+                  >
                     {selectedProof.settlementTx}
-                  </p>
+                  </a>
                 </div>
               </div>
 
