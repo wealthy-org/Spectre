@@ -18,6 +18,7 @@ export const SPECTRE_SCROLL_MARKUP = `
     <a class="net" href="/docs" style="text-decoration:none">Docs</a>
     <a class="net" href="/proof" style="text-decoration:none">Proof</a>
     <a class="net" href="/privacy" style="text-decoration:none">Privacy</a>
+    <a class="net" href="https://x.com/spectreonrh" target="_blank" rel="noopener noreferrer" style="text-decoration:none" title="Follow @spectreonrh on X">𝕏 @spectreonrh</a>
     <span class="net hidden sm:inline">Robinhood Chain</span>
     <a class="btn sm" href="/app">Launch App</a>
   </div>
@@ -158,7 +159,7 @@ export const SPECTRE_SCROLL_MARKUP = `
     <div class="copy">
       <h2>Your assets. Your positions. Your business.</h2>
       <p class="lead">Shield assets. Build a private portfolio. Trade through execution waves. Withdraw on your terms.</p>
-      <div class="cta"><a class="btn" href="/app">Launch App</a><a class="link" href="/docs">Docs</a><a class="link" href="/privacy">Privacy threat model</a><a class="link" href="/proof">Proof</a></div>
+      <div class="cta"><a class="btn" href="/app">Launch App</a><a class="link" href="/docs">Docs</a><a class="link" href="/privacy">Privacy threat model</a><a class="link" href="/proof">Proof</a><a class="link" href="https://x.com/spectreonrh" target="_blank" rel="noopener noreferrer">𝕏 @spectreonrh</a></div>
       <p class="fine">Preview design. Deposits and withdrawals are public onchain actions, and privacy here means reduced linkage rather than invisibility. The architecture is subject to audit and legal review.</p>
     </div>
     <figure class="art">

@@ -11,6 +11,7 @@ import {
   IconProof,
   IconShield,
   IconBook,
+  IconX,
 } from "@/components/app/Icons";
 
 const PRIMARY_LINKS = [
@@ -171,6 +172,20 @@ export function AppNav() {
                 <div className="my-1 border-t border-white/5" />
 
                 <Link
+                  href="https://x.com/spectreonrh"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpenProtocol(false)}
+                  className="flex items-center justify-between rounded-xl p-2.5 text-xs font-semibold text-[var(--text-dim)] hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <IconX className="h-3.5 w-3.5 opacity-80" />
+                    <span>Follow @spectreonrh</span>
+                  </div>
+                  <IconExternal className="h-3.5 w-3.5 opacity-60" />
+                </Link>
+
+                <Link
                   href="https://explorer.testnet.chain.robinhood.com"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -187,6 +202,15 @@ export function AppNav() {
 
         {/* Right Section */}
         <div className="flex shrink-0 items-center gap-2.5">
+          <Link
+            href="https://x.com/spectreonrh"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Follow @spectreonrh on X"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[rgba(235,221,255,.75)] transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+          >
+            <IconX className="h-4 w-4" />
+          </Link>
           <span className="hidden items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-1 text-xs font-medium text-[rgba(235,221,255,.75)] lg:flex">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--ultra)]" />
             Robinhood

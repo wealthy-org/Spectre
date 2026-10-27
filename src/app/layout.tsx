@@ -30,6 +30,8 @@ export const metadata: Metadata = {
     card: "summary",
     title,
     description,
+    site: "@spectreonrh",
+    creator: "@spectreonrh",
     images: ["/brand/logo.png"],
   },
 };

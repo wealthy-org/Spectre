@@ -331,6 +331,14 @@ export default function DocsPage() {
                   Settlement Proofs
                 </Link>
                 <Link
+                  href="https://x.com/spectreonrh"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#18181B]"
+                >
+                  𝕏 @spectreonrh
+                </Link>
+                <Link
                   href="https://explorer.testnet.chain.robinhood.com"
                   target="_blank"
                   className="hover:text-[#18181B]"
