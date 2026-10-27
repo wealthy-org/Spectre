@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 import { keccak256, concat, stringToBytes } from "viem";
+import { isUserRejectedError } from "@/lib/errors";
 
 export const SPECTRE_DERIVATION_MESSAGE = [
   "PROJECT: Spectre",
@@ -97,7 +98,9 @@ export function PrivateAccountProvider({ children }: { children: ReactNode }) {
         // Ignore sessionStorage errors
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to derive private account key.");
+      if (!isUserRejectedError(err)) {
+        setError(err instanceof Error ? err.message : "Failed to derive private account key.");
+      }
     } finally {
       setIsDeriving(false);
     }

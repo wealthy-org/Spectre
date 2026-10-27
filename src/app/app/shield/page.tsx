@@ -23,6 +23,7 @@ import {
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { TokenIcon } from "@/components/app/TokenIcon";
 import { ShieldPreviewCard } from "@/components/app/ShieldPreviewCard";
+import { formatFriendlyError, isUserRejectedError } from "@/lib/errors";
 import {
   IconChevronDown,
   IconClose,
@@ -495,9 +496,9 @@ export default function ShieldPage() {
                 ERC-20s require a one-time token approval before depositing into the pool.
               </p>
             )}
-            {error && (
+            {error && !isUserRejectedError(error) && (
               <p className="mt-3 text-xs text-rose-400">
-                {error.message.split("\n")[0]}
+                {formatFriendlyError(error, "Deposit failed")}
               </p>
             )}
             {hash && (

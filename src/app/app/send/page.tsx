@@ -21,6 +21,7 @@ import {
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { TokenIcon } from "@/components/app/TokenIcon";
 import { SendTransferPreviewCard } from "@/components/app/SendTransferPreviewCard";
+import { formatFriendlyError, isUserRejectedError } from "@/lib/errors";
 import {
   IconChevronDown,
   IconClose,
@@ -380,9 +381,9 @@ export default function SendPage() {
             </div>
 
             {/* Error & Feedback */}
-            {error && (
+            {error && !isUserRejectedError(error) && (
               <p className="mt-3 text-xs text-rose-400">
-                {error.message.split("\n")[0]}
+                {formatFriendlyError(error, "Transfer failed")}
               </p>
             )}
 

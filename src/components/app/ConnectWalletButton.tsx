@@ -10,6 +10,7 @@ import {
 import { robinhoodChainTestnet } from "@/lib/chains";
 import { usePrivateAccount } from "@/lib/private-account";
 import { IconShield, IconLock, IconClose } from "@/components/app/Icons";
+import { formatFriendlyError, isUserRejectedError } from "@/lib/errors";
 
 function truncate(address: string) {
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
@@ -185,8 +186,10 @@ export function ConnectWalletButton() {
               </div>
             </div>
 
-            {derivationError && (
-              <p className="mt-2 text-[10px] text-rose-400">{derivationError}</p>
+            {derivationError && !isUserRejectedError(derivationError) && (
+              <p className="mt-2 text-[10px] text-rose-400">
+                {formatFriendlyError(derivationError, "Key derivation failed")}
+              </p>
             )}
 
             <div className="mt-4 border-t border-white/10 pt-3">
@@ -236,8 +239,10 @@ export function ConnectWalletButton() {
               {c.name}
             </button>
           ))}
-          {error && (
-            <p className="mt-1 px-3 py-1 text-xs text-rose-400">{error.message}</p>
+          {error && !isUserRejectedError(error) && (
+            <p className="mt-1 px-3 py-1 text-xs text-rose-400">
+              {formatFriendlyError(error, "Failed to connect wallet")}
+            </p>
           )}
         </div>
       )}

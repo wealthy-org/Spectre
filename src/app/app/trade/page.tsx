@@ -33,6 +33,7 @@ import {
 } from "@/components/app/Icons";
 import { TokenIcon } from "@/components/app/TokenIcon";
 import { TradeWavePreviewCard } from "@/components/app/TradeWavePreviewCard";
+import { formatFriendlyError, isUserRejectedError } from "@/lib/errors";
 
 interface ActiveIntent {
   id: string;
@@ -628,9 +629,9 @@ export default function TradePage() {
               </div>
             )}
 
-            {txError && (
+            {txError && !isUserRejectedError(txError) && (
               <p className="mt-3 text-xs text-rose-400">
-                {txError.message.split("\n")[0]}
+                {formatFriendlyError(txError, "Order placement failed")}
               </p>
             )}
 

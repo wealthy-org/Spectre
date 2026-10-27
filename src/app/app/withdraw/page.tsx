@@ -28,6 +28,7 @@ import {
 } from "@/components/app/Icons";
 import { TokenIcon } from "@/components/app/TokenIcon";
 import { WithdrawWavePreviewCard } from "@/components/app/WithdrawWavePreviewCard";
+import { formatFriendlyError, isUserRejectedError } from "@/lib/errors";
 
 const CHAIN_ID = robinhoodChainTestnet.id;
 const POOL_ADDRESS = SHIELDED_POOL_ADDRESS[CHAIN_ID];
@@ -482,9 +483,9 @@ export default function WithdrawPage() {
             )}
 
             {/* Notifications */}
-            {error && (
+            {error && !isUserRejectedError(error) && (
               <p className="mt-3 text-xs text-rose-400">
-                {error.message.split("\n")[0]}
+                {formatFriendlyError(error, "Withdrawal failed")}
               </p>
             )}
 
